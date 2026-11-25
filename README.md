@@ -1,49 +1,78 @@
 # 嵌入式开发工具箱（embedded-toolkit）
 
-[![ci](https://github.com/liujycode/embedded-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/liujycode/embedded-toolkit/actions/workflows/ci.yml)
-[![release](https://img.shields.io/github/v/release/liujycode/embedded-toolkit?label=release)](https://github.com/liujycode/embedded-toolkit/releases)
-[![license](https://img.shields.io/github/license/liujycode/embedded-toolkit)](LICENSE)
+[![ci](https://github.com/stillsurge/embedded-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/stillsurge/embedded-toolkit/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/stillsurge/embedded-toolkit?label=release)](https://github.com/stillsurge/embedded-toolkit/releases)
+[![license](https://img.shields.io/github/license/stillsurge/embedded-toolkit)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#设计约束)
 
-> Evidence-first embedded dev skills for AI coding agents — register lookup & code verification from CMSIS-SVD, debug decision trees, peripheral pitfall lists and one-shot timing calculations. Offline, every answer cites its source.
+给 AI 编程助手用的嵌入式技能包。五个技能，一条主线：**AI 负责写得快，工具箱负责验得对**。
 
-给 AI 编程助手用的嵌入式技能包，五个技能：**寄存器百事通**（查）、**寄存器核验器**（验）、**排障决策树**（修）、**外设避坑清单**（防）、**时序计算器**（算）。原则：**AI 负责写得快，工具箱负责验得对**。所有结论离线计算，并带上出处和证据标签，不靠模型凭记忆回答寄存器细节。
+> Evidence-first embedded dev skills for AI coding agents — register lookup & code verification from CMSIS-SVD,
+> debug decision trees, peripheral pitfall lists and one-shot timing calculations.
+> Offline, every answer cites its source.
 
-## 当前内容
+## 为什么需要它
 
-| 技能 | 版本 | 状态 | 说明 |
+模型会把不存在的位名编得很像真的：`USART_CR1_XXX`、超过字段宽度的值、没开时钟就写的寄存器。这类错误
+编译能过、跑起来才发现外设不动，排查成本高。
+
+这五个技能把"查证"变成可执行命令：结论离线算出，每条带 `source`（文件 / 设备 / 版本）与 `label`（证据等级）。
+
+## 五个技能
+
+| 技能 | 一句话 | 版本 | 实测证据 |
 |---|---|---|---|
-| `embedded-register-lookup`（寄存器百事通） | 1.11.1 | 本地测试与真机触发评测通过（见 `benchmarks/trigger-results.md`）；厂商 SVD 冒烟 19 家（见 `benchmarks/vendor-svds.md`） | 基于 CMSIS SVD 查外设、寄存器、位域、复位值、中断号与 NVIC 使能位；解码 / 写值计算 / 读改写陷阱提示（**`decode --write`、`set` 与 `lookup` 寄存器视图三处都提示；含 `modifiedWriteValues` 与 `readAction=modifyExternal` 两类语义**）；宏生成（**含枚举值宏与 `isDefault` 默认项说明**）；双芯片与外设级对比；SVD 质量检查（**识别厂商常见的多宽度视图/位域别名，不再误报**）；环境体检；**SDK 自带 SVD 自动发现（PlatformIO / Arduino15 / ESP-IDF / Pico SDK / CMSIS-Pack，覆盖 ESP32 系列与 RP2040）**；**裸寄存器名直接查（AVR/MSP430 风格 `lookup UCSR0B`，重名时列候选）**；**相关置位/清位/翻转寄存器自动关联（`OUT0` → `OUTSET0/OUTCLR0/OUTTGL0`、`GPIO_OUT` → `GPIO_OUT_SET/_CLR/_XOR`）**；**`irq` 带优先级字节（`NVIC.IPR9 第 1 字节`）**；**`addr` 低地址自动按 AVR 数据空间口径（0x800000+）探测**；**`isDefault` 枚举默认项（渲染为"其余值，默认"，E05 不误报）**；Markdown 输出；解析缓存 |
-| `embedded-register-verify`（寄存器核验器） | 1.16.2 | 注入集召回 229/229=100%（合成芯片，见 `benchmarks/verify-recall.md`）；正样本 55 文件 0 误报；真实源码 0 误报：ESP-IDF v4.4.7（224 处写入）、TI TivaWare（363 处）、libopencm3 STM32F1（366 处，3 处为文件级时钟检查在库代码上的已知限制）、AVR Arduino 核心（33 处）、Microchip SAMD 核心（49 处）、Renesas RA FSP（36 处）、Silicon Labs Gecko SDK emlib（318/309 处 × 3 份 SVD）、NXP MCUXpresso（23 文件）与 **pico-sdk 2.1.0（22 文件、47 处写入，RP2040）** 试跑（见 `benchmarks/verify-dogfood.md`） | 核验 C/C++ 代码里的寄存器写入：外设/寄存器/位域存在性、值超宽（**含位域直写按位域宽度；`MODIFY_REG` 置位值兼容字段相对与 ST 风格带位置两种约定**）、枚举合法性（**含位域直写；`isDefault` 默认项不误报**）、只读位、时钟使能、硬编码地址（**AVR 数据空间 0x800000 口径自动探测；`char`/`unsigned char`/`short` 等指针类型全覆盖**）、中断分组、**使能后写 DMA 配置寄存器（E11）**、**只写寄存器读改写（E12）**、**写 1 清零寄存器读改写（E13：`modifiedWriteValues=oneToClear` 上的 `\|=`/`SET_BIT`/`MODIFY_REG` 在掩码未覆盖全部 W1C 位时会把已置位标志顺带清零；掩码未知记未判定）**；**覆盖多种写法**：`.c/.h/.cpp/.cc/.cxx/.hpp/.hh/.hxx/.ino`、CMSIS 结构体、地址别名宏、HWREG/HWREGBIT/`MMIO32`/`REG32`/`_SFR_MEM8`/`_SFR_IO8` 地址访问宏、指针表达式写入、函数宏作左值（`GPIO_ODR(GPIOA) \|= x`）、**裸寄存器名（AVR/MSP430 风格 `PORTB = 0xFF`）**、**CMSIS union/数组风格（`PORT->Group[0].DIRSET.reg`）**、**Renesas FSP（`REG_b` 位域视图、`R_GPT0` 指针宏按地址解析）**、**Silicon Labs（端口字母 `P[3]`→`PD_DOUT`、`REG.FIELD` 直写、`_S` 安全别名）**、**pico-sdk/RP2040（小写指针宏 `dma_hw->intr`、`_u()` 拼贴宏、嵌套结构体成员名 `resus.ctrl`→`CLK_SYS_RESUS_CTRL`）**、**条件编译块降级（E01/E02/E03/E10/E12/E13）**、TI 直寄存器宏（`SYSCTL_RCGC2_R`，指针别名按地址核验）、`NRF_`/`R_` 厂商别名、通道名同义写法（`DMA1_Channel3`↔`DMA1_CH3`↔SVD 后缀 `CCR3`）、ESP-IDF `REG_WRITE/REG_SET_FIELD`（配 `--headers`，**`#include` 自动跟随**、**分号分隔多 include 目录**、多参数函数宏、`BIT(n)`）、**文件内与头文件的 C/C++ `enum` 常量求值（隐式自增按 C 语义）**；**补丁模式用整文件做上下文（E06/E07/E11 不因未改动的使能/置位误报）**；报/未判定/通过分桶（**汇总带按类计数与未判定原因分布**）+ 复查清单；**每条问题带 `next` 查证命令与 `--explain` 内联寄存器定义（含写/读语义与相关置位/清位寄存器建议，与百事通闭环）**；目录与 git diff 模式；不执行代码 |
-| `embedded-debug-trees`（排障决策树） | 1.3.0 | schema/同源校验与检索评测（`tools/knowledge_bench.py`、`tools/knowledge_check.py`，CI 强制；用例数、召回与 p@1/MRR 见 `benchmarks/knowledge-recall.md`）；触发用例 40 正 + 19 反 | 十二棵决策树 77 节点：HardFault（CFSR 按位解读 + FPU/NOCP + LOCKUP + 故障快照）、通信不通（配置→时序→数据流三层 + RS485 方向）、DMA（只收一次/错位/偶发损坏/Cache 一致性/DMAMUX）、CAN/CAN-FD 通信不通（物理层/位时序/过滤器/发送邮箱/bus-off）、RTOS（FromISR + 优先级映射 + 时基没跑）、启动失败（VTOR + 复位源 + SWD 连不上）、低功耗与唤醒（睡死/时钟回落/进不了低功耗/调试器影响）、USB（识别不到/枚举/CDC/缓冲对齐）、片上 Flash（写不进/等待/读保护）、RTC（时钟源/写保护/首次上电）、LCD（背光/花屏/触摸）、FPGA/RTL（综合后行为异常/资源/工具链）；按症状关键词检索（`search`：中英文 + 同义词 + **中文整句反向匹配 + bigram 兜底**，`--tree` 限定、`--format json`）、整树展示（`show`）、根因排行（`rootcauses`，**按实战经验排序并如实标注**）、跨树线索（`see`/转入）；检索不到明说 `E_NOT_FOUND` 不编造 |
-| `embedded-peripheral-pitfalls`（外设避坑清单） | 1.2.0 | schema/同源校验与检索评测（同上，CI 强制；用例数、召回与 p@1/MRR 见 `benchmarks/knowledge-recall.md`）；触发用例 35 正 + 14 反 | 二十五类外设 148 个配置坑（adc/c/can/crc/dac/dbg/dma/eth/exti/flash/gpio/i2c/link/modbus/mpu/pwr/rcc/rtc/sd/sensor-bus/spi/tim/uart/usb/wdg），每坑=症状+对策；按外设/症状检索（`search`：中英文 + 同义词 + 中文整句反向匹配 + bigram 兜底，`--category` 限定、`--format json`）、分类坑表（`show`）、配置口诀（`rule`：时钟→GPIO→外设→中断→使能）、时序数值坑带 `next` 指到 `embedded-timing-calc`；与 verify 分工：verify 查寄存器写入合法性，本库查配置语义陷阱 |
-| `embedded-timing-calc`（时序计算器） | 1.1.0 | demo 自检通过；待提交（公式审查见 `benchmarks/review-timing-calc.md`） | 37 个计算器：UART 波特率/BRR 与误差、定时器 PWM 的 PSC/ARR 互算与反推、I2C 上拉电阻与总线耗时、CAN 位时序与采样点、ADC 最大源阻抗、RC 截止频率与建立时间、SPI 分频与传输耗时、采样定理、死区占比、看门狗超时、PLL、分压电阻、NTC、晶振 ppm、ESP32 外设时钟、RP2040 UART 分频、PWM 调光位深、WS2812 位时序、舵机、步进电机、常用波特率速查、RTC 走时、USB 48MHz 推导链、电池续航、Modbus 帧间隔、Flash 擦写寿命、传感器分辨率换算，外加 FPGA 七项（UART 整数分频、静态时序 slack/Fmax、PWM 位深、I2C 分频、消抖窗口、CDC 检查单、异步 FIFO 溢出）；每条带公式、合法性判定与阈值出处，`--format json`；避坑清单的时序数值坑会指到本技能 |
-计划中（按阶段门推进，见总方案）：接线排障、原理图审查官。
+| **寄存器百事通**<br>`embedded-register-lookup` | 查寄存器 / 位域 / 复位值 / 中断号；地址反查、值解码、宏生成、双芯片对比 | 1.11.1 | 19 家厂商 SVD 冒烟 |
+| **寄存器核验器**<br>`embedded-register-verify` | 核验 C/C++ 里的寄存器写入，按「报 / 未判定 / 通过」分桶 | 1.16.2 | 注入集召回 229/229；9 个真实 SDK 0 误报 |
+| **排障决策树**<br>`embedded-debug-trees` | 12 棵树 77 节点，先取证再判断，不直接开药 | 1.3.1 | 检索评测 CI 强制 |
+| **外设避坑清单**<br>`embedded-peripheral-pitfalls` | 25 类外设 148 个配置坑，每坑 = 症状 + 对策 | 1.2.1 | 检索评测 CI 强制 |
+| **时序计算器**<br>`embedded-timing-calc` | 37 个计算器，结果回显公式与合法性依据 | 1.1.1 | demo 自检通过 |
 
-## 适配范围（跨厂商、跨工具链、跨写法）
+逐技能的规则、覆盖写法与实测记录见 [`docs/skills/`](docs/skills/)。
 
-| 维度 | 覆盖 |
-|---|---|
-| 芯片 / 厂商 | 任何有 CMSIS SVD 的芯片：ST、GigaDevice、Nordic、NXP、Renesas、Microchip 等（Keil / cpackget 设备包）；**ESP32 系列、RP2040 由 SDK 自带 SVD 自动发现** |
-| SVD 来源 | `--svd` 指定 / 项目内扫描（深度 ≤6）/ 环境变量 `ETK_SVD_DIR` / 本机 CMSIS-Pack 缓存（含多平台路径）/ PlatformIO、Arduino15、ESP-IDF、Pico SDK 自带 SVD |
-| 工具链 / 环境 | Keil MDK、STM32CubeMX、PlatformIO、ESP-IDF、Arduino、Zephyr、nRF Connect SDK 的目录结构；Windows / macOS / Linux；Python 3.9+，零依赖、离线 |
-| 代码写法（核验器） | CMSIS 结构体写（`USART1->CR1`）、CMSIS 宏（`SET_BIT/MODIFY_REG`）、厂商别名（`NRF_USBD`、`R_PORT0`）、地址别名宏（`#define REG (*(volatile uint32_t *)0x...)`）、`HWREG`（TI 风格）、C/C++ 与 Arduino（`.cpp/.hpp/.ino`）；ESP-IDF 风格寄存器宏明确记"未判定" |
+## 四个典型场景
+
+**"这个位到底叫什么？复位值多少？"** → 百事通
+
+```bash
+python skills/embedded-register-lookup/scripts/lookup.py lookup USART1.CR1.UE --chip STM32G431
+```
+
+**"AI 给我生成的初始化代码靠谱吗？"** → 核验器
+
+```bash
+python skills/embedded-register-verify/scripts/verify.py check Core/Src --chip STM32G431
+```
+
+**"串口就是收不到数据"** → 决策树
+
+```bash
+python skills/embedded-debug-trees/scripts/trees.py search "串口收不到数据"
+```
+
+**"I2C 上拉该选多大？"** → 时序计算器
+
+```bash
+python skills/embedded-timing-calc/scripts/timing.py i2c-rp --bus fast --cb 200 --vdd 3.3
+```
 
 ## 安装
 
-> 状态：GitHub 源码已公开。仓库现有五个技能（查询 + 核验 + 排障决策树 + 外设避坑清单 + 时序计算器；版本见上表）。触发评测第三轮完成：核验器首轮全量 22 正 + 10 反（Claude Code 29/32、OpenCode 31/32）、百事通扩量 35 正 + 10 反（Claude Code 39/45、OpenCode 41/45）；首跑合计 140/154 = 90.9%，漏报与边界如实记录，见 `benchmarks/trigger-results.md`。知识技能 v1.2.0 触发轮（2026-10-20，路由 `deepseek_for_coding`）：决策树 52.5%、避坑 14.3%，**反例 33/33 零误触发**；未触发主因为强路由模型对咨询型问题直接作答（抽查答案基本正确），危害面收敛在寄存器级事实题，详见 `benchmarks/trigger-results-trees.md`。Trae CN / WorkBuddy / Codex / Cursor 待人工。
-
-**Claude Code（插件市场）**
-
-```
-/plugin marketplace add liujycode/embedded-toolkit
+```bash
+# Claude Code（插件市场）
+/plugin marketplace add stillsurge/embedded-toolkit
 /plugin install embedded-toolkit@embedded-toolkit
+
+# 其他 Agent（Agent Skills 标准）
+npx skills add stillsurge/embedded-toolkit
 ```
 
-**其他 Agent（Agent Skills 标准）**：`npx skills add liujycode/embedded-toolkit`，或把 `skills/embedded-register-lookup/` 整个文件夹复制到该 Agent 的技能目录（如 `.agents/skills/`、`.trae/skills/`），或导入对应技能页。
+也可以把 `skills/<技能名>/` 整个文件夹复制到该 Agent 的技能目录（如 `.agents/skills/`、`.trae/skills/`），
+或按技能页导入。每个技能自带所需的 `etk_core` 副本，不需要额外安装。
 
-**让 Agent 更愿意查库（建议）**：强编码模型常凭记忆直接回答"配置有哪些坑"类问题。把下面一段加进项目的 `CLAUDE.md` / 系统提示，可显著提高查库率：
+**让 Agent 更愿意查库（建议）**：强编码模型常凭记忆直接回答"配置有哪些坑"类问题。把下面一段加进项目的
+`CLAUDE.md` 或系统提示，可显著提高查库率：
 
 ```
 涉及寄存器位定义/复位值、外设配置阈值（上拉阻值/采样点/死区/波特率误差）、芯片细节或"某外设有哪些坑"的问题，
@@ -51,60 +80,63 @@
 再依据查询结果回答；不要凭记忆给出具体数值或位名。
 ```
 
+**实测状态**：触发评测三轮已完成。首轮核验器 22 正 + 10 反（Claude Code 29/32、OpenCode 31/32）、
+百事通 35 正 + 10 反（Claude Code 39/45、OpenCode 41/45），合计 140/154 = 90.9%，漏报与边界如实记录于
+[`benchmarks/trigger-results.md`](benchmarks/trigger-results.md)。知识技能触发轮（2026-10-20，
+路由 `deepseek_for_coding`）：决策树 52.5%、避坑 14.3%，**反例 33/33 零误触发**；未触发主因是强路由模型
+对咨询型问题直接作答，危害面收敛在寄存器级事实题，见
+[`benchmarks/trigger-results-trees.md`](benchmarks/trigger-results-trees.md)。Trae CN / WorkBuddy / Codex / Cursor 待人工。
+
 ## 快速上手
 
+零配置试用：内置合成演示芯片（`--demo`，非真实芯片），不需要装任何 SVD。
+
 ```bash
-# 零配置试一下（内置合成演示芯片，不需要装任何 SVD）
 python skills/embedded-register-lookup/scripts/lookup.py fields GPIOA.MODER --demo
-python skills/embedded-register-lookup/scripts/lookup.py doctor          # 本机 SVD 从哪来、有没有
-python skills/embedded-register-lookup/scripts/lookup.py devices --filter STM32  # 本机有哪些芯片可用
-
-# 芯片名：会在本机 CMSIS-Pack / 项目目录中自动查找 SVD（Keil Pack Installer 安装的包）
-python skills/embedded-register-lookup/scripts/lookup.py lookup USART1.CR1.UE --chip STM32G431
-
-# 没有 Pack 时，直接给 SVD 文件
-python skills/embedded-register-lookup/scripts/lookup.py addr 0x4001380C --svd ./STM32G431xx.svd
-
-# 按位解码寄存器值
-python skills/embedded-register-lookup/scripts/lookup.py decode RCC.CR 0x00040002 --chip STM32G431
-
-# 位域速查（掩码、复位、枚举）与位图
-python skills/embedded-register-lookup/scripts/lookup.py fields TIM1.CR1 --chip STM32G431
-python skills/embedded-register-lookup/scripts/lookup.py diagram TIM1.CR1 --chip STM32G431
-
-# 算寄存器写入值（值可以用枚举名）
-python skills/embedded-register-lookup/scripts/lookup.py set TIM1.CR1 CEN=1 DIR=UP --chip STM32G431
-
-# 中断号与 C 宏（自动带 NVIC 使能位）
-python skills/embedded-register-lookup/scripts/lookup.py irq USART1 --chip STM32G431
-python skills/embedded-register-lookup/scripts/lookup.py macros USART1.CR1 --chip STM32G431
-
-# 对比两颗芯片：单个寄存器全字段，或整个外设（升级 Pack、移植代码）
-python skills/embedded-register-lookup/scripts/lookup.py diff USART1.CR1 --chip-a STM32F103C8 --chip-b STM32G431
-python skills/embedded-register-lookup/scripts/lookup.py diff USART1 --chip-a STM32F103C8 --chip-b STM32G431
-
-# 体检 SVD 质量
-python skills/embedded-register-lookup/scripts/lookup.py lint --chip STM32G431
+python skills/embedded-register-lookup/scripts/lookup.py doctor                   # 本机 SVD 从哪来、有没有
+python skills/embedded-register-lookup/scripts/lookup.py devices --filter STM32   # 本机有哪些芯片可用
+python skills/embedded-register-verify/scripts/verify.py check skills/embedded-register-verify/examples/verify_demo.c --demo
 ```
+
+配好芯片后（或直接给 SVD 文件）：
 
 ```bash
-# 寄存器核验器：查 C 代码里的寄存器写入对不对（AI 生成代码 / 新驱动 / git diff）
-python skills/embedded-register-verify/scripts/verify.py check Core/Src --chip STM32G431
-python skills/embedded-register-verify/scripts/verify.py check main.c --chip STM32G431 --checklist
-python skills/embedded-register-verify/scripts/verify.py check --patch changes.diff --chip STM32G431
-python skills/embedded-register-verify/scripts/verify.py check examples/verify_demo.c --demo   # 零配置试用
+L=skills/embedded-register-lookup/scripts/lookup.py   # 以下用 $L 简写（bash）；PowerShell 请写完整路径
+
+python $L lookup USART1.CR1.UE --chip STM32G431     # 芯片名：自动在本机 CMSIS-Pack / 项目目录找 SVD
+python $L addr 0x4001380C --svd ./STM32G431xx.svd   # 没有 Pack 时直接给文件
+python $L decode RCC.CR 0x00040002 --chip STM32G431 # 按位解码寄存器值
+python $L fields TIM1.CR1 --chip STM32G431          # 位域速查：掩码、复位、枚举
+python $L diagram TIM1.CR1 --chip STM32G431         # 位图布局
+python $L set TIM1.CR1 CEN=1 --chip STM32G431         # 算写入值（值用数字）
+python $L set GPIOA.MODER MODE0=output --demo        # 字段带枚举时可直接用枚举名
+python $L irq USART1 --chip STM32G431               # 中断号 + NVIC 使能位
+python $L macros USART1.CR1 --chip STM32G431        # CMSIS 风格宏
+python $L diff USART1.CR1 --chip-a STM32F103C8 --chip-b STM32G431  # 双芯片对比
+python $L lint --chip STM32G431                     # 体检 SVD 质量
 ```
 
-核验输出分三桶：**报**（E01–E13，附行号/类别/建议）、**未判定**（HAL 调用、内核外设等范围外内容，如实说明）、**通过**；退出码 1 表示检出问题。
+核验器：
 
-## 两个技能怎么配合（查 → 写 → 验）
+```bash
+V=skills/embedded-register-verify/scripts/verify.py   # 同上
 
-两个技能共用同一份 SVD 与查找/缓存规则，一次安装、一套数据，跑成闭环：
+python $V check Core/Src --chip STM32G431         # 目录
+python $V check main.c --chip STM32G431 --checklist
+python $V check --patch changes.diff --chip STM32G431   # git diff 模式
+```
 
-1. **查**：写代码前用 `embedded-register-lookup` 拿事实（位域、掩码、复位值、枚举、写读语义）。
-2. **验**：写完（尤其 AI 生成）用 `embedded-register-verify` 核验；报告分"报/未判定/通过"。
-3. **闭环**：每条"报"都带 `next` 字段——可直接执行的百事通命令（如 `lookup USART1.CR1`、
-   `addr 0x40013800`，已带本次 `--svd/--chip/--demo` 参数）；`--explain` 还能把寄存器定义直接内联进报告。
+核验输出分三桶：**报**（E01–E13，附行号 / 类别 / 建议）、**未判定**（HAL 调用、内核外设等范围外内容，
+如实说明）、**通过**；退出码 1 表示检出问题。
+
+## 查 → 写 → 验闭环
+
+百事通与核验器共用同一份 SVD 与查找 / 缓存规则，一次安装、一套数据：
+
+1. **查**：写代码前拿事实（位域、掩码、复位值、枚举、写读语义）。
+2. **验**：写完（尤其 AI 生成）用核验器检查；报告分「报 / 未判定 / 通过」。
+3. **闭环**：每条「报」都带 `next` 字段——可直接执行的百事通命令（已带本次 `--svd` / `--chip` / `--demo` 参数）。
+   `--explain` 还能把寄存器定义内联进报告。
 4. 修复后用同一条命令复验。
 
 ```bash
@@ -112,13 +144,20 @@ python skills/embedded-register-verify/scripts/verify.py check examples/verify_d
 python skills/embedded-register-verify/scripts/verify.py check main.c --chip STM32G431
 #   [报] E03 第 42 行：宏 USART_CR1_XXX 对应的位域 XXX 在 USART1.CR1 中不存在
 #       下一步：embedded-register-lookup lookup USART1.CR1 --chip STM32G431
-
-# 查：按 next 里的提示打开寄存器实况（或直接用 verify --explain 内联）
-python skills/embedded-register-lookup/scripts/lookup.py lookup USART1.CR1 --chip STM32G431
 ```
 
-解析结果会缓存在本机（`%LOCALAPPDATA%\etk\cache` 或 `~/.cache/etk`），重复查询更快，
-SVD 文件改动后自动失效；`ETK_NO_CACHE=1` 可关闭。
+## 适配范围
+
+| 维度 | 覆盖 |
+|---|---|
+| 芯片 / 厂商 | 任何有 CMSIS SVD 的芯片：ST、GigaDevice、Nordic、NXP、Renesas、Microchip 等（Keil / cpackget 设备包）；ESP32 系列、RP2040 由 SDK 自带 SVD 自动发现 |
+| SVD 来源 | `--svd` 指定 / 项目内扫描（深度 ≤6）/ 环境变量 `ETK_SVD_DIR` / 本机 CMSIS-Pack 缓存 / PlatformIO、Arduino15、ESP-IDF、Pico SDK 自带 SVD |
+| 工具链 | Keil MDK、STM32CubeMX、PlatformIO、ESP-IDF、Arduino、Zephyr、nRF Connect SDK 的目录结构；Windows / macOS / Linux；Python 3.9+，零依赖、离线 |
+| 代码写法 | CMSIS 结构体与宏、厂商别名、地址别名宏、`HWREG`、C/C++ 与 Arduino；ESP-IDF 风格寄存器宏明确记「未判定」 |
+
+完整写法清单见 [`docs/skills/embedded-register-verify.md`](docs/skills/embedded-register-verify.md)。
+
+## 配置
 
 每个项目可在根目录放 `.etk/config.json`，省去重复参数：
 
@@ -126,9 +165,9 @@ SVD 文件改动后自动失效；`ETK_NO_CACHE=1` 可关闭。
 { "chip": "STM32G431RB", "svd": "tools/svd/STM32G431xx.svd" }
 ```
 
-项目目录里的 `.svd` 会被自动扫描（深度 ≤ 6）；也可以用环境变量 `ETK_SVD_DIR` 指向自备 SVD 目录。
-
-输出格式：默认中文文本；`--format json` 输出统一信封，供 Agent 解析；`--format md` 输出 Markdown 表格，可直接粘贴进文档或聊天；`--out 文件` 保存结果。
+- 项目目录里的 `.svd` 会被自动扫描（深度 ≤ 6）
+- 解析结果缓存在本机（`%LOCALAPPDATA%\etk\cache` 或 `~/.cache/etk`），SVD 改动后自动失效；`ETK_NO_CACHE=1` 关闭
+- 输出格式：默认中文文本；`--format json` 输出统一信封供 Agent 解析；`--format md` 输出 Markdown 表格；`--out 文件` 保存
 
 ## 设计约束
 
@@ -136,41 +175,44 @@ SVD 文件改动后自动失效；`ETK_NO_CACHE=1` 可关闭。
 - **离线**：不联网，不调用任何外部 API。
 - **只读**：不修改用户项目文件，写出只发生在 `--out` 指定的路径。
 - **不执行被检查的代码**：核验器只做词法分析，不 `eval`、不运行用户代码（仓库质量门会检查）。
-- **解析缓存**：解析结果缓存在本机（按文件大小与纳秒级修改时间失效），缓存故障静默降级；`ETK_NO_CACHE=1` 关闭。
-- **不内置厂商文件**：SVD 由用户本机的 CMSIS-Pack 或自备文件提供；另附一份自行编写的合成演示数据（`--demo`，不是真实芯片），仅用于零配置试用。
-- **每条结论有出处**：`source` 字段给出文件、设备、版本；`label` 给出证据等级。
+- **不内置厂商文件**：SVD 由本机 CMSIS-Pack 或自备文件提供；仅附一份自编的合成演示数据（`--demo`）。
+- **每条结论有出处**：`source` 给出文件 / 设备 / 版本，`label` 给出证据等级。
 
 ## 开发
 
 ```bash
 python -m pip install -r requirements-dev.txt
 
-python tools/sync_core.py          # 把 shared/etk_core 同步到各技能（技能必须自带核心库）
-python tools/check_repo.py         # 仓库质量门：同步、SKILL.md 规范、3.9 语法、仅标准库
-python -m pytest -q                # 单元与集成测试
+python tools/sync_core.py     # 把 shared/etk_core 同步到各技能（技能必须自带核心库）
+python tools/check_repo.py    # 仓库质量门：同步、SKILL.md 规范、3.9 语法、仅标准库、不 eval
+python -m pytest -q           # 单元与集成测试
 
-# 真实厂商 SVD 测试（可选）：指向本机已有的 .svd 目录，多个目录用系统路径分隔符连接
+# 真实厂商 SVD 测试（可选）：指向本机 .svd 目录，多个目录用系统路径分隔符连接
 ETK_TEST_SVD_DIR=/path/to/svd-dir python -m pytest tests/test_real_svd.py
 ```
 
-目录结构：
-
 ```
-shared/etk_core/          共享核心源码（唯一来源）
-skills/<技能名>/          每个技能一个文件夹，内含 SKILL.md、scripts/（含 etk_core 副本）、references/
-tools/                    同步与质量检查工具
-tests/                    单元测试、合成夹具、触发评测用例（tests/trigger/）
-benchmarks/               真实样本核对记录与基准数据
-.claude-plugin/           Claude Code 插件与市场清单
+shared/etk_core/     共享核心源码（唯一来源）
+skills/<技能名>/     每个技能一个文件夹：SKILL.md、scripts/（含 etk_core 副本）、references/
+tools/               同步与质量检查工具
+tests/               单元测试、合成夹具、触发评测用例（tests/trigger/）
+benchmarks/          真实样本核对记录与基准数据
+docs/skills/         各技能的详细能力说明
+.claude-plugin/      Claude Code 插件与市场清单
 ```
 
-修改 `shared/etk_core` 后，务必运行 `python tools/sync_core.py`，否则质量门会失败。
+改动 `shared/etk_core` 后必须运行 `python tools/sync_core.py`，否则质量门失败。
 
 ## 限制
 
-- SVD 质量由厂商决定。发现错误时，以手册为准，并在 issue 中反馈。
-- 目前已在 ST（STM32G431）、Nordic（nRF52840）、GigaDevice（GD32F3x0）三家的 SVD 上完成逐项对照验证；其他厂商待补。
+- SVD 质量由厂商决定。发现错误时以手册为准，并在 issue 中反馈。
+- 已在 ST（STM32G431）、Nordic（nRF52840）、GigaDevice（GD32F3x0）三家 SVD 上完成逐项对照验证，其他厂商待补。
 - 不覆盖引脚复用（AF 表）、时钟树、手册勘误、外挂器件命令。
+- 触发评测尚未覆盖 Trae CN / WorkBuddy / Codex / Cursor。
+
+## 路线图
+
+按阶段门推进：接线排障、原理图审查官。
 
 ## 许可
 
