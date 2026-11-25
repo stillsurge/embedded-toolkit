@@ -59,17 +59,62 @@ python skills/embedded-timing-calc/scripts/timing.py i2c-rp --bus fast --cb 200 
 
 ## 安装
 
-```bash
-# Claude Code（插件市场）
-/plugin marketplace add stillsurge/embedded-toolkit
-/plugin install embedded-toolkit@embedded-toolkit
+本仓库只提供**技能**（Agent Skills 开放标准），不包含专家包。任何支持 Skills 的 Agent 都能直接安装。
 
-# 其他 Agent（Agent Skills 标准）
-npx skills add stillsurge/embedded-toolkit
+### 一条命令装到你的 Agent
+
+```bash
+npx skills add stillsurge/embedded-toolkit -a claude-code   # Claude Code
+npx skills add stillsurge/embedded-toolkit -a cursor        # Cursor
+npx skills add stillsurge/embedded-toolkit -a codex         # Codex
+npx skills add stillsurge/embedded-toolkit -a qoder         # Qoder
+npx skills add stillsurge/embedded-toolkit -a zcode         # ZCode
+
+# 一次装到多个（多值用空格分隔，逗号会被拒绝）
+npx skills add stillsurge/embedded-toolkit -a claude-code cursor codex qoder zcode --all
 ```
 
-也可以把 `skills/<技能名>/` 整个文件夹复制到该 Agent 的技能目录（如 `.agents/skills/`、`.trae/skills/`），
-或按技能页导入。每个技能自带所需的 `etk_core` 副本，不需要额外安装。
+`skills` CLI 当前支持 **79 个 Agent 目标**，包括 Claude Code、Cursor、Codex、Qoder、ZCode、
+CodeBuddy、Trae、Windsurf、Cline、Roo、OpenCode、Gemini CLI、GitHub Copilot、Kiro、通义灵码等。
+完整列表：随便给一个非法的 `-a` 值，CLI 会把合法标识全打印出来。
+
+加 `-g` 装到用户级目录（所有项目可用），不加则装到当前项目目录。
+
+### 实测落盘位置
+
+| Agent | `-a` 标识 | 用户级目录 |
+|---|---|---|
+| Claude Code | `claude-code` | `~/.claude/skills/` |
+| Cursor | `cursor` | `~/.agents/skills/` |
+| Codex | `codex` | `~/.agents/skills/` |
+| Qoder | `qoder` | `~/.qoder/skills/` |
+| ZCode | `zcode` | `~/.zcode/skills/` |
+| CodeBuddy | `codebuddy` | `~/.codebuddy/skills/` |
+
+以上为 2026-11-25 在 Windows 上 `-g --copy` 的实测结果。
+
+**WorkBuddy 用户注意**：WorkBuddy 读的是 `~/.workbuddy/skills/`，而 CLI 的 `codebuddy` 目标落到
+`~/.codebuddy/skills/`，两者不是同一目录。装完再复制一次：
+
+```powershell
+Copy-Item -Recurse "$HOME\.codebuddy\skills\embedded-*" "$HOME\.workbuddy\skills\"
+```
+
+复制后在 WorkBuddy 里刷新技能列表即可看到。
+
+### Claude Code 插件市场
+
+```bash
+/plugin marketplace add stillsurge/embedded-toolkit
+/plugin install embedded-toolkit@embedded-toolkit
+```
+
+### 手动安装
+
+从 [Releases](https://github.com/stillsurge/embedded-toolkit/releases) 下载 `embedded-toolkit-vX.Y.Z.zip`，
+把其中的 `skills/*` 解压到目标 Agent 的 skills 目录。也可以直接复制 `skills/<技能名>/` 整个文件夹。
+
+每个技能自带 `etk_core` 副本，零 `pip install`、零外部依赖、不联网。
 
 **让 Agent 更愿意查库（建议）**：强编码模型常凭记忆直接回答"配置有哪些坑"类问题。把下面一段加进项目的
 `CLAUDE.md` 或系统提示，可显著提高查库率：
