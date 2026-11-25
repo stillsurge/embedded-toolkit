@@ -5,7 +5,7 @@
 1. etk_core 副本与 shared 一致（tools/sync_core.py --check）
 2. 每个技能的 SKILL.md：frontmatter 合法、name 与目录名一致、description 长度、正文行数 ≤ 500、
    脚本版本号与 metadata.version 一致、存在触发评测用例（正例 ≥ 20、反例 ≥ 10）
-3. 运行时代码（shared 与各技能 scripts）满足 Python 3.9 语法
+3. 运行时代码（shared 与各技能 scripts）满足 Python 3.10 语法
 4. 运行时代码只 import 标准库
 
 用法：python tools/check_repo.py    （无问题时退出码 0）
@@ -151,15 +151,15 @@ def _runtime_files():
     return files
 
 
-def check_py39():
+def check_py310():
     issues = []
     for path in _runtime_files():
         with open(path, encoding="utf-8") as fh:
             src = fh.read()
         try:
-            ast.parse(src, filename=path, feature_version=(3, 9))
+            ast.parse(src, filename=path, feature_version=(3, 10))
         except SyntaxError as exc:
-            issues.append("%s：不兼容 Python 3.9 语法（第 %s 行）" % (os.path.relpath(path, ROOT), exc.lineno))
+            issues.append("%s：不兼容 Python 3.10 语法（第 %s 行）" % (os.path.relpath(path, ROOT), exc.lineno))
     return issues
 
 
@@ -215,7 +215,7 @@ def check_no_dynamic_exec():
 
 
 def run_all():
-    return (check_sync() + check_skills() + check_py39() + check_stdlib()
+    return (check_sync() + check_skills() + check_py310() + check_stdlib()
             + check_demo_assets() + check_no_dynamic_exec())
 
 

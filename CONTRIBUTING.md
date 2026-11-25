@@ -10,7 +10,7 @@ cd embedded-toolkit
 python -m pip install -r requirements-dev.txt   # 只有 pytest
 ```
 
-运行时（`shared/etk_core` 与各技能的 `scripts/`）**只能使用 Python 3.9+ 标准库**，不允许引入任何第三方包。
+运行时（`shared/etk_core` 与各技能的 `scripts/`）**只能使用 Python 3.10+ 标准库**，不允许引入任何第三方包。
 
 ## 提交前必跑
 
@@ -20,7 +20,7 @@ python tools/check_repo.py     # 仓库质量门，必须输出「仓库检查�
 python -m pytest -q            # 单元与集成测试
 ```
 
-CI 在 ubuntu / windows / macOS × Python 3.9 / 3.12 上跑这三条，任一失败即阻断。
+CI 在 ubuntu / windows / macOS × Python 3.10 / 3.12 上跑这三条，任一失败即阻断。
 
 **改动 `shared/etk_core` 却忘了 `sync_core.py`，质量门一定失败**——各技能必须自带核心库副本，这是分发前提。
 
@@ -32,7 +32,7 @@ CI 在 ubuntu / windows / macOS × Python 3.9 / 3.12 上跑这三条，任一失
 | SKILL.md | frontmatter 合法、`name` 与目录名一致、`description` ≤ 1024 字符、正文 ≤ 500 行 |
 | 版本一致 | `metadata.version` 等于 `scripts/*.py` 的 `__version__` |
 | 触发用例 | `tests/trigger/<技能名>.json` 存在，正例 ≥ 20、反例 ≥ 10 |
-| Python 兼容 | 运行时代码通过 Python 3.9 语法解析 |
+| Python 兼容 | 运行时代码通过 Python 3.10 语法解析 |
 | 依赖约束 | 运行时代码只 import 标准库 |
 | 演示数据 | 各技能 `assets/demo.svd` 与 `embedded-register-lookup` 的副本一致 |
 | 安全约束 | 运行时代码不得调用 `eval` / `exec` / `compile` |

@@ -14,15 +14,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ["3.9", "3.12"]
-        # ubuntu-latest 已滚到 26.04，该镜像没有 Python 3.9 构建；
-        # 3.9 兼容性改在 ubuntu-22.04 上验证，其余组合仍用 latest。
-        include:
-          - os: ubuntu-22.04
-            python: "3.9"
-        exclude:
-          - os: ubuntu-latest
-            python: "3.9"
+        # 3.10 是支持下限，3.12 / 3.13 是当前主流
+        python: ["3.10", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7

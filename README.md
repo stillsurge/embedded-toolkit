@@ -3,7 +3,7 @@
 [![ci](https://github.com/stillsurge/embedded-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/stillsurge/embedded-toolkit/actions/workflows/ci.yml)
 [![release](https://img.shields.io/github/v/release/stillsurge/embedded-toolkit?label=release)](https://github.com/stillsurge/embedded-toolkit/releases)
 [![license](https://img.shields.io/github/license/stillsurge/embedded-toolkit)](LICENSE)
-[![python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
+[![python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#设计约束)
 
 给 AI 编程助手用的嵌入式技能包。五个技能，一条主线：**AI 负责写得快，工具箱负责验得对**。
@@ -152,7 +152,7 @@ python skills/embedded-register-verify/scripts/verify.py check main.c --chip STM
 |---|---|
 | 芯片 / 厂商 | 任何有 CMSIS SVD 的芯片：ST、GigaDevice、Nordic、NXP、Renesas、Microchip 等（Keil / cpackget 设备包）；ESP32 系列、RP2040 由 SDK 自带 SVD 自动发现 |
 | SVD 来源 | `--svd` 指定 / 项目内扫描（深度 ≤6）/ 环境变量 `ETK_SVD_DIR` / 本机 CMSIS-Pack 缓存 / PlatformIO、Arduino15、ESP-IDF、Pico SDK 自带 SVD |
-| 工具链 | Keil MDK、STM32CubeMX、PlatformIO、ESP-IDF、Arduino、Zephyr、nRF Connect SDK 的目录结构；Windows / macOS / Linux；Python 3.9+，零依赖、离线 |
+| 工具链 | Keil MDK、STM32CubeMX、PlatformIO、ESP-IDF、Arduino、Zephyr、nRF Connect SDK 的目录结构；Windows / macOS / Linux；Python 3.10+，零依赖、离线 |
 | 代码写法 | CMSIS 结构体与宏、厂商别名、地址别名宏、`HWREG`、C/C++ 与 Arduino；ESP-IDF 风格寄存器宏明确记「未判定」 |
 
 完整写法清单见 [`docs/skills/embedded-register-verify.md`](docs/skills/embedded-register-verify.md)。
@@ -171,7 +171,7 @@ python skills/embedded-register-verify/scripts/verify.py check main.c --chip STM
 
 ## 设计约束
 
-- **零运行时依赖**：只使用 Python 3.9+ 标准库，无需 `pip install`。
+- **零运行时依赖**：只使用 Python 3.10+ 标准库，无需 `pip install`。
 - **离线**：不联网，不调用任何外部 API。
 - **只读**：不修改用户项目文件，写出只发生在 `--out` 指定的路径。
 - **不执行被检查的代码**：核验器只做词法分析，不 `eval`、不运行用户代码（仓库质量门会检查）。
@@ -184,7 +184,7 @@ python skills/embedded-register-verify/scripts/verify.py check main.c --chip STM
 python -m pip install -r requirements-dev.txt
 
 python tools/sync_core.py     # 把 shared/etk_core 同步到各技能（技能必须自带核心库）
-python tools/check_repo.py    # 仓库质量门：同步、SKILL.md 规范、3.9 语法、仅标准库、不 eval
+python tools/check_repo.py    # 仓库质量门：同步、SKILL.md 规范、3.10 语法、仅标准库、不 eval
 python -m pytest -q           # 单元与集成测试
 
 # 真实厂商 SVD 测试（可选）：指向本机 .svd 目录，多个目录用系统路径分隔符连接

@@ -2,9 +2,9 @@
 name: embedded-register-verify
 description: 核验 C 代码里的 MCU 寄存器写入是否与芯片 SVD 一致：外设、寄存器、位域是否存在；值是否超位宽；枚举是否合法；是否写只读位；是否访问前未开时钟；是否硬编码地址。按"报 / 未判定 / 通过"分桶输出，并可生成复查清单。Use when reviewing embedded C init code, register writes, or AI-generated firmware registers; verify register writes against a chip SVD. 关键词：寄存器核验、寄存器检查、AI 生成代码、驱动复查、初始化代码检查、对拍、register check、verify register writes。不用于：HAL/LL 结构体配置语义（会进未判定）、外挂器件命令（Flash、传感器）、时序正确性、通用代码风格、寄存器事实查询（用 embedded-register-lookup）。
 license: MIT
-compatibility: 需要 Python 3.9+，仅使用标准库，无需联网。需要目标芯片的 CMSIS SVD 文件（查找规则同 embedded-register-lookup）；没有 SVD 时可用内置演示芯片（--demo）零配置试用。
+compatibility: 需要 Python 3.10+，仅使用标准库，无需联网。需要目标芯片的 CMSIS SVD 文件（查找规则同 embedded-register-lookup）；没有 SVD 时可用内置演示芯片（--demo）零配置试用。
 metadata:
-  author: 周衡
+  author: fangcun
   version: "1.16.2"
 ---
 

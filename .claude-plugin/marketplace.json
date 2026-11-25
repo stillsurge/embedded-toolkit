@@ -1,7 +1,7 @@
 {
   "name": "embedded-toolkit",
   "owner": {
-    "name": "stillsurge"
+    "name": "fangcun"
   },
   "metadata": {
     "description": "嵌入式开发工具箱：离线、带出处的 Agent 技能五件套（寄存器查询与核验 + 排障决策树 12 棵/77 节点 + 外设配置坑 148 条 + 时序计算器 37 个）"
