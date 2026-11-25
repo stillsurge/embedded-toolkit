@@ -258,7 +258,7 @@ python skills/embedded-register-verify/scripts/verify.py check main.c --chip STM
 |---|---|
 | 芯片 / 厂商 | 任何有 CMSIS SVD 的芯片：ST、GigaDevice、Nordic、NXP、Renesas、Microchip 等（Keil / cpackget 设备包）；ESP32 系列、RP2040 由 SDK 自带 SVD 自动发现 |
 | SVD 来源 | `--svd` 指定 / 项目内扫描（深度 ≤6）/ 环境变量 `ETK_SVD_DIR` / 本机 CMSIS-Pack 缓存 / PlatformIO、Arduino15、ESP-IDF、Pico SDK 自带 SVD |
-| 工具链 | Keil MDK、STM32CubeMX、PlatformIO、ESP-IDF、Arduino、Zephyr、nRF Connect SDK 的目录结构；Windows / macOS / Linux；Python 3.10+；24 个零依赖，`schematic-reader` 的 PDF 解析为可选依赖 |
+| 工具链 | Keil MDK、STM32CubeMX、PlatformIO、ESP-IDF、Arduino、Zephyr、nRF Connect SDK 的目录结构；Windows / macOS / Linux；Python 3.10+；14 个零依赖，`schematic-reader` 的 PDF 解析为可选依赖 |
 | 代码写法 | CMSIS 结构体与宏、厂商别名、地址别名宏、`HWREG`、C/C++ 与 Arduino；ESP-IDF 风格寄存器宏明确记「未判定」 |
 
 完整写法清单见 [`docs/skills/embedded-register-verify.md`](docs/skills/embedded-register-verify.md)。
