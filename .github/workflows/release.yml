@@ -53,6 +53,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${GITHUB_REF_NAME}"
-          gh release create "$TAG" *.zip \
-            --title "$TAG" \
-            --generate-notes
+          # 幂等：tag 已存在 Release 时（重打 tag、force push、补发附件）改为覆盖上传，
+          # 否则 gh release create 会因「release already exists」直接失败。
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG 已存在，改为覆盖上传附件"
+            gh release upload "$TAG" *.zip --clobber
+          else
+            gh release create "$TAG" *.zip \
+              --title "$TAG" \
+              --generate-notes
+          fi

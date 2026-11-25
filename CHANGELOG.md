@@ -6,6 +6,52 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.4.1] - 2026-11-25
+
+公开仓库全面体检后的一轮修复：两个真实缺陷、一处文档误导、文档覆盖补齐，
+以及 git 历史清理。
+
+### 修复
+
+- **审查器 `--html` 必崩**：`generate_html_report` 里 `scan_desc` 只在审查成功时
+  赋值，而入口无论成败都调用它，于是「文件不存在」「语法错误」这类场景一加
+  `--html` 就抛 `UnboundLocalError`。已给默认值兜底，失败时报告写明原因。
+- **调参报告页脚版本号过期**：`report_gen.py` 硬编码 `1.0.0`（实际 1.1.1），
+  用户拿到的报告自带错误版本。改为 `__version__` 变量；`main.py` 同步补上
+  `__version__`，让质量门的版本一致性检查能覆盖到。
+- **`--mode report` 是错的**：29 种模式表里把 report 写成 `--mode report`，
+  但 `main.py` 的 choices 没有它，实际是独立脚本 `report_gen.py`。已标注。
+
+### 质量门加固
+
+- `_runtime_files()` 原来只扫 `skills/*/scripts/*.py`，`reviewer.py`、`main.py`、
+  `ota_audit.py`、`ota_tool.py`、`report_gen.py` 这 5 个放在技能根目录的入口脚本
+  从未经过「非标准库模块」与「禁 eval/exec/compile」检查。改为遍历技能内全部
+  `.py`（排除 `__pycache__`/`tests`/`etk_core`），覆盖 25 → 31 个文件。
+- 新增非阻断告警：`description` 超 900 字符时提示。上限 1024 是多个 Agent 的硬
+  限制，ZCode 超限会静默丢弃整个技能。
+- `CONTRIBUTING.md` 的质量门表格按实际规则重写（原来写的「trigger 用例必须存在」
+  「版本必须等于 `__version__`」「只 import 标准库」都已是旧规则），并新增
+  「收录前提」：必须已在平台上线、必须自研或授权明确、只收嵌入式相关。
+
+### 文档
+
+- `docs/skills/` 由 5 页补到 **15 页**，每个技能一页（作用 / 版本 / 核心内容 /
+  命令 / 实测记录 / 边界）。写文档时又抓出两处照抄会失败的命令：驱动模板库入口
+  是 `driver_templates.py` 而非 `engine.py`；PCB 清单无 `--class` 参数。
+- README 适配范围表残留的「24 个零依赖」改为 14 个；issue 模板的过期版本号同步。
+- CHANGELOG 里 3 处本地开发路径改为通用表述。
+
+### 仓库治理
+
+- `.gitignore` 补 `.benchmarks/`。
+- `release.yml` 改为幂等：tag 已有 Release 时改为 `gh release upload --clobber`，
+  避免重打 tag 或 force push 时 `gh release create` 因「已存在」失败。
+- **git 历史清理**：历史里曾提交过 12 个第三方技能（zhinkgit/embeddedskills、
+  EA-SKILL）、4 个内部工具技能、以及 4.5MB 评测转录（含本机绝对路径与 session
+  id）。用 `filter-branch` 只删这些路径，72 个提交与 3 个 tag 全部保留。
+  `.git` 由 5.4MB 降至 1.7MB，重写后重新验证：历史里只剩当前 15 个技能。
+
 ## [1.4.0] - 2026-11-25
 
 收录标准改为**只收已在平台上线的技能**：公开仓库面向外部用户，放进去的必须是能直接
