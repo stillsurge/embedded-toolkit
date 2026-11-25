@@ -1,2 +1,0 @@
-# 原理图 PDF 解析
-PyMuPDF  # import: fitz

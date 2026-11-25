@@ -50,15 +50,32 @@ def parse_frontmatter(text):
         raise ValueError("frontmatter 未闭合（缺少结束 ---）")
     data = {}
     current = None
+    last_sub = None
     for raw in lines[1:end]:
         if not raw.strip() or raw.lstrip().startswith("#"):
             continue
         indent = len(raw) - len(raw.lstrip(" "))
-        key, sep, value = raw.strip().partition(":")
+        stripped = raw.strip()
+        # 列表项：顶格项挂到最近的顶层 key，缩进项挂到最近的下级 key
+        if stripped.startswith("- "):
+            item = stripped[2:].strip().strip('"').strip("'")
+            if indent == 0:
+                container, key = data, current
+            else:
+                container = data.get(current) if isinstance(current, str) else None
+                key = last_sub
+            if not isinstance(container, dict) or not isinstance(key, str):
+                raise ValueError("无法解析 frontmatter 列表项：%s" % raw)
+            if not isinstance(container.get(key), list):
+                container[key] = []
+            container[key].append(item)
+            continue
+        key, sep, value = stripped.partition(":")
         if not sep:
             raise ValueError("无法解析 frontmatter 行：%s" % raw)
         value = value.strip().strip('"').strip("'")
         if indent == 0:
+            last_sub = None
             if value == "":
                 data[key] = {}
                 current = key
@@ -67,6 +84,7 @@ def parse_frontmatter(text):
                 current = None
         elif current is not None and isinstance(data.get(current), dict):
             data[current][key] = value
+            last_sub = key
     body = "\n".join(lines[end + 1:])
     return data, body
 

@@ -6,7 +6,7 @@
 [![python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#设计约束)
 
-给 AI 编程助手用的嵌入式技能包。12 个自研技能，一条主线：**AI 负责写得快，工具箱负责验得对**。
+给 AI 编程助手用的嵌入式技能包。14 个自研技能，一条主线：**AI 负责写得快，工具箱负责验得对**。
 
 > Evidence-first embedded dev skills for AI coding agents — register lookup & code verification from CMSIS-SVD,
 > debug decision trees, peripheral pitfall lists and one-shot timing calculations.
@@ -17,35 +17,47 @@
 模型会把不存在的位名编得很像真的：`USART_CR1_XXX`、超过字段宽度的值、没开时钟就写的寄存器。这类错误
 编译能过、跑起来才发现外设不动，排查成本高。
 
-这 12 个技能把"查证"变成可执行命令：结论离线算出，每条带 `source`（文件 / 设备 / 版本）与 `label`（证据等级）。
+这 14 个技能把"查证"变成可执行命令：结论离线算出，每条带 `source`（文件 / 设备 / 版本）与 `label`（证据等级）。
 
-## 12 个技能
+## 14 个技能
 
-全部为本仓库自研，不含第三方技能。按用途分两组。
+全部为本仓库自研，不含第三方技能。按固件工程阶段分四组。
 
-### 查证与生成
-
-| 技能 | 一句话 | 版本 |
-|---|---|---|
-| **寄存器百事通**<br>`embedded-register-lookup` | 查寄存器 / 位域 / 复位值 / 中断号；地址反查、值解码、宏生成、双芯片对比 | 1.11.1 |
-| **寄存器核验器**<br>`embedded-register-verify` | 核验 C/C++ 里的寄存器写入，按「报 / 未判定 / 通过」分桶 | 1.16.2 |
-| **时序计算器**<br>`embedded-timing-calc` | 37 个计算器：波特率、PWM、I2C 上拉、SPI 时序等，回显公式与合法性依据 | 1.1.1 |
-| **驱动模板库**<br>`embedded-driver-templates` | 9 款常用驱动模板（DHT11/DS18B20/SSD1306/MPU6050 等）+ 外设初始化顺序查询；算法层纯 C99，平台差异收在 port 层 | 1.0.0 |
-| **原理图识别**<br>`schematic-reader` | 解析 Altium / Cadence / KiCad / 立创 EDA / 通用网表，输出引脚级网表供查询连通性；只给确定性事实，不做审查判断 | 1.0.0 |
-| **器件采购避坑**<br>`component-pitfalls` | 渠道四级分级、四类假芯片识别、五步验真、缺货替代链、220V 与锂电安全红线 | 1.0.0 |
-
-### 排障与验收
+### 设计与选型
 
 | 技能 | 一句话 | 版本 |
 |---|---|---|
-| **排障决策树**<br>`embedded-debug-trees` | 12 棵树 77 节点，先取证再判断，不直接开药 | 1.3.1 |
-| **外设避坑清单**<br>`embedded-peripheral-pitfalls` | 25 类外设 148 个配置坑，每坑 = 症状 + 对策 | 1.2.1 |
-| **静默失败诊断**<br>`silent-toolchain-failure-diagnosis` | 「工具装了但一跑就静默失败」：rc≠0 却无输出、被误判成沙箱/权限问题 | 1.0.0 |
-| **真机故障注入**<br>`mcu-hardfault-live-verify` | 在真实板子上注入故障 → 抓寄存器 → 反查出错函数，证明能力在真硅上成立 | 1.0.0 |
-| **硬件工具安全隔离**<br>`hw-tool-safety-isolation` | 给会真正操作硬件的工具/脚本/MCP 加默认安全隔离与强制检查 | 1.0.0 |
-| **调试器安装验收**<br>`mcu-debug-installer` | mcu-debug-mcp 安装引导与首次连接验收，适配任意 stdio MCP 宿主 | 1.1.1 |
+| **嵌入式寄存器查询器**<br>`embedded-register-lookup` | 查寄存器 / 位域 / 复位值 / 中断号；地址反查、值解码、宏生成、双芯片对比 | 1.11.1 |
+| **嵌入式时序计算器**<br>`embedded-timing-calc` | 37 个计算器：波特率、PWM、I2C 上拉、SPI 时序等，回显公式与合法性依据 | 1.1.1 |
+| **元器件选型避坑指南**<br>`component-pitfalls` | 渠道四级分级、四类假芯片识别、五步验真、缺货替代链、220V 与锂电安全红线 | 1.0.0 |
+| **PCB 布局自查清单**<br>`hw-pcb-review` | 布局自查打勾与报告生成，覆盖电源、地、USB、晶振等高频出错点 | 1.0.0 |
 
-逐技能的规则、覆盖写法与实测记录见 [`docs/skills/`](docs/skills/)（已覆盖五个核心知识技能）。
+### 编码与审查
+
+| 技能 | 一句话 | 版本 |
+|---|---|---|
+| **嵌入式代码生成器**<br>`embedded-code-generator` | 常用外设与外设组合的代码模板，生成可编译骨架 | 1.1.1 |
+| **嵌入式驱动模板库**<br>`embedded-driver-templates` | 9 款常用驱动模板（DHT11/DS18B20/SSD1306/MPU6050 等）+ 外设初始化顺序查询；算法层纯 C99，平台差异收在 port 层 | 1.0.0 |
+| **嵌入式C/C++代码审查器**<br>`embedded-code-reviewer` | 28 条规则查真雷：ISR 里调延时、共享变量缺 volatile、数组越界、整数溢出等，每条附 MISRA C:2012/C++:2008 编号与修复建议，可出 HTML 报告 | 1.1.1 |
+| **嵌入式寄存器写入审计器**<br>`embedded-register-verify` | 核验 C/C++ 里的寄存器写入是否与芯片 SVD 一致，按「报 / 未判定 / 通过」分桶 | 1.16.2 |
+| **嵌入式外设配置巡检器**<br>`embedded-peripheral-pitfalls` | 25 类外设 148 个配置坑，每坑 = 症状 + 对策 | 1.2.1 |
+
+### 调试与升级
+
+| 技能 | 一句话 | 版本 |
+|---|---|---|
+| **嵌入式故障诊断器**<br>`embedded-debug-trees` | 12 棵树 77 节点，先取证再判断，不直接开药 | 1.3.1 |
+| **嵌入式OTA升级工具包**<br>`embedded-ota-toolkit` | OTA/Bootloader 升级链路静态审计，15 条防砖规则，可出报告并入 CI 门禁 | 1.2.0 |
+| **FPGA 仿真工作台**<br>`embedded-fpga-sim` | testbench 模板与仿真判读，覆盖 counter / FIFO / SPI 从机 / CDC 等场景 | 1.0.0 |
+
+### 测试与调参
+
+| 技能 | 一句话 | 版本 |
+|---|---|---|
+| **产品出厂测试方案**<br>`embedded-production-test` | 按板型与规格生成产线测试规范，含电流上下限、节拍、老化温循 | 1.0.0 |
+| **电机PID调参器**<br>`motor-pid-tuner` | 电流 / 速度 / 位置环参数计算，含 ZN 整定、离散化、抗饱和、死区补偿 | 1.1.1 |
+
+逐技能的规则、覆盖写法与实测记录见 [`docs/skills/`](docs/skills/)（覆盖五个核心知识技能）。
 
 > 关于工具链：Keil / J-Link / OpenOCD / 串口 / CAN 这类"驱动本机工具"的技能不在本仓库。
 > 需要的话用 [`zhinkgit/embeddedskills`](https://github.com/zhinkgit/embeddedskills)（MIT），
@@ -144,19 +156,18 @@ Copy-Item -Recurse "$HOME\.codebuddy\skills\embedded-*" "$HOME\.workbuddy\skills
 
 | 包 | 适用 |
 |---|---|
-| `embedded-toolkit-vX.Y.Z.zip` | 全部 12 个技能 |
+| `embedded-toolkit-vX.Y.Z.zip` | 全部 14 个技能 |
 | `<技能名>-vX.Y.Z.zip` | 单个技能，按需下载 |
 
 也可以直接复制仓库里的 `skills/<技能名>/` 整个文件夹，复制到任何位置都能独立运行。
 
 ### 依赖说明
 
-12 个技能里 11 个是纯标准库，只有 `schematic-reader` 需要第三方包：
+14 个技能全部只用 Python 3.10+ 标准库，零 `pip install`：
 
 | 技能 | 依赖 |
 |---|---|
-| 其余 11 个（lookup、verify、timing-calc、debug-trees、peripheral-pitfalls、driver-templates、component-pitfalls、silent-toolchain-failure、mcu-hardfault-live-verify、hw-tool-safety-isolation、mcu-debug-installer） | 无，仅 Python 3.10+ 标准库 |
-| `schematic-reader` | `PyMuPDF`（解析 PDF 原理图）；技能根目录有 `requirements.txt`，`pip install -r requirements.txt` 即可 |
+| 全部 14 个 | 无第三方包。`lookup` 与 `verify` 自带 `etk_core` 副本，其余为纯知识库或模板 |
 
 所有技能都**不联网**、**不执行用户代码**，也不依赖任何本机烧录器/调试器。
 
@@ -241,7 +252,7 @@ python skills/embedded-register-verify/scripts/verify.py check main.c --chip STM
 |---|---|
 | 芯片 / 厂商 | 任何有 CMSIS SVD 的芯片：ST、GigaDevice、Nordic、NXP、Renesas、Microchip 等（Keil / cpackget 设备包）；ESP32 系列、RP2040 由 SDK 自带 SVD 自动发现 |
 | SVD 来源 | `--svd` 指定 / 项目内扫描（深度 ≤6）/ 环境变量 `ETK_SVD_DIR` / 本机 CMSIS-Pack 缓存 / PlatformIO、Arduino15、ESP-IDF、Pico SDK 自带 SVD |
-| 工具链 | Keil MDK、STM32CubeMX、PlatformIO、ESP-IDF、Arduino、Zephyr、nRF Connect SDK 的目录结构；Windows / macOS / Linux；Python 3.10+，除 `schematic-reader` 需 PyMuPDF 外零依赖、离线 |
+| 工具链 | Keil MDK、STM32CubeMX、PlatformIO、ESP-IDF、Arduino、Zephyr、nRF Connect SDK 的目录结构；Windows / macOS / Linux；Python 3.10+，全部零第三方依赖、离线 |
 | 代码写法 | CMSIS 结构体与宏、厂商别名、地址别名宏、`HWREG`、C/C++ 与 Arduino；ESP-IDF 风格寄存器宏明确记「未判定」 |
 
 完整写法清单见 [`docs/skills/embedded-register-verify.md`](docs/skills/embedded-register-verify.md)。

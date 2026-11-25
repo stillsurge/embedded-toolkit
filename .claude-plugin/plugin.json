@@ -1,7 +1,7 @@
 {
   "name": "embedded-toolkit",
-  "version": "1.1.0",
-  "description": "嵌入式开发工具箱：12 个自研技能，离线、带出处。寄存器查询与核验、时序计算（37 个）、驱动模板与初始化顺序、原理图识别、器件采购避坑、排障决策树（12 棵/77 节点）、外设配置坑（148 条）、静默失败诊断、真机故障注入、硬件工具安全隔离、调试器安装验收",
+  "version": "1.2.0",
+  "description": "嵌入式开发工具箱：14 个自研技能，全部零第三方依赖、离线运行。覆盖选型（元器件避坑、PCB 布局自查）、编码（代码生成器、驱动模板库）、审查（C/C++ 代码审查 28 条 MISRA 映射、寄存器写入审计、外设配置巡检）、调试（故障诊断树 12 棵、OTA 升级审计、FPGA 仿真）、测试调参（出厂测试方案、电机 PID）",
   "author": {
     "name": "fangcun"
   },
@@ -9,14 +9,15 @@
   "keywords": [
     "embedded",
     "mcu",
-    "stm32",
-    "cmsis-svd",
-    "register",
     "firmware",
-    "verify",
+    "misra",
+    "code-review",
+    "register",
     "debug",
-    "pitfalls",
-    "schematic",
-    "hardfault"
+    "pid",
+    "ota",
+    "pcb",
+    "fpga",
+    "test"
   ]
 }
