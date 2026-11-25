@@ -203,6 +203,9 @@ docs/skills/         各技能的详细能力说明
 
 改动 `shared/etk_core` 后必须运行 `python tools/sync_core.py`，否则质量门失败。
 
+贡献流程、质量门检查项与新增技能的步骤见 [CONTRIBUTING.md](CONTRIBUTING.md)；版本变更见
+[CHANGELOG.md](CHANGELOG.md)。
+
 ## 限制
 
 - SVD 质量由厂商决定。发现错误时以手册为准，并在 issue 中反馈。
