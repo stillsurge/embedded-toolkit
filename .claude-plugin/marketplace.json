@@ -4,27 +4,26 @@
     "name": "fangcun"
   },
   "metadata": {
-    "description": "嵌入式开发工具箱：24 个技能，离线、带出处。寄存器查询与核验、时序计算、排障决策树 12 棵/77 节点、外设坑 148 条，加构建/烧录/调试/联调工具链"
+    "description": "嵌入式开发工具箱：12 个自研技能，离线、带出处，覆盖寄存器查证、时序计算、驱动模板、原理图识别、排障与验收"
   },
   "plugins": [
     {
       "name": "embedded-toolkit",
       "source": ".",
-      "description": "嵌入式开发工具箱：24 个技能覆盖固件全流程——寄存器查询与核验、时序计算（37 个）、排障决策树（12 棵/77 节点）、外设配置坑（148 条）、驱动模板、原理图识别，以及 Keil/EIDE/GCC 构建、J-Link/OpenOCD/probe-rs 烧录调试、串口/CAN/网络联调。核心知识技能零依赖离线，结论带出处与证据标签",
+      "description": "嵌入式开发工具箱：12 个自研技能，离线、带出处。寄存器查询与核验、时序计算（37 个）、驱动模板与初始化顺序、原理图识别、器件采购避坑、排障决策树（12 棵/77 节点）、外设配置坑（148 条）、静默失败诊断、真机故障注入、硬件工具安全隔离、调试器安装验收",
       "category": "development",
       "tags": [
         "embedded",
         "mcu",
         "stm32",
-        "svd",
+        "cmsis-svd",
         "register",
+        "firmware",
         "verify",
         "debug",
         "pitfalls",
-        "keil",
-        "jlink",
-        "serial",
-        "can"
+        "schematic",
+        "hardfault"
       ]
     }
   ]

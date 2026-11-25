@@ -8,39 +8,42 @@
 
 ## [1.1.0] - 2026-11-25
 
-技能从 5 个扩到 **24 个**，覆盖固件工程全流程。仓库范围严格限定为嵌入式相关，
-毕设导师类（grad-project / capstone 共 10 个）属教学场景，未收录。
+技能从 5 个扩到 **12 个**，全部为本仓库自研。收录标准：只收自己开发的嵌入式技能，
+不收第三方技能包。
 
-### 新增技能
+### 新增技能（7 个）
 
-**构建**：`keil`（MDK 工程扫描与构建）、`eide`（EIDE 工程）、`gcc`（CMake + arm-none-eabi-gcc，含 ELF 大小分析）。
+| 技能 | 内容 |
+|---|---|
+| `embedded-driver-templates` | 9 款常用驱动模板（DHT11/DS18B20/HC-05/HC-SR04/MPU6050/SSD1306/SG90/28BYJ-48/ESP8266-AT），算法层纯 C99、平台差异收在 port 层；另含外设初始化顺序查询 |
+| `schematic-reader` | 解析 Altium / Cadence / KiCad / 立创 EDA / 通用网表，输出引脚级网表供连通性查询；只给确定性解析事实，不做审查判断 |
+| `component-pitfalls` | 采购避坑：渠道四级分级、四类假芯片识别、五步验真法、缺货替代链、220V 与锂电安全红线 |
+| `silent-toolchain-failure-diagnosis` | 诊断「工具装了但静默失败」：rc≠0 却无 stdout/stderr、被误判成沙箱/权限/网络问题 |
+| `mcu-hardfault-live-verify` | 真机故障注入 → 抓寄存器 → 反查出错函数，验证排障能力在真实芯片上成立 |
+| `hw-tool-safety-isolation` | 给会真正操作硬件的工具/脚本/MCP 加默认安全隔离与强制检查 |
+| `mcu-debug-installer` | mcu-debug-mcp 的安装引导与首次连接验收，适配任意 stdio MCP 宿主 |
 
-**烧录与调试**：`jlink`（烧录/内存/寄存器/RTT/SWO/在线调试）、`openocd`（探针/烧录/GDB Server/Telnet/ITM）、`probe-rs`（探针/烧录/GDB/RTT）。
+### 明确不收录
 
-**联调与观测**：`serial`（串口监控/发送/Hex）、`can`（CAN/CAN-FD/DBC 解码）、`net`（tshark 抓包/pcap 分析）、`terminal`（保持上下文的交互会话）、`workflow`（build/flash/debug/observe 编排层）。
+以下为第三方开源项目，与本仓库技能正交，需要时按各自仓库安装：
 
-**设计与排障**：`embedded-driver-templates`（驱动模板与初始化顺序）、`schematic-reader`（Altium/Cadence/KiCad/立创/网表解析）、`component-pitfalls`（器件选型避坑）、`silent-toolchain-failure-diagnosis`（工具装了但静默失败）、`mcu-hardfault-live-verify`（真机故障注入验证）、`hw-tool-safety-isolation`（硬件操作工具安全隔离）、`mcu-debug-installer`（mcu-debug-mcp 安装验收）、`ea-skill`（全流程开发管家）。
+- `zhinkgit/embeddedskills`（MIT）——11 个工具链技能：keil、eide、gcc、jlink、openocd、
+  probe-rs、serial、can、net、terminal、workflow。它们驱动本机已装的 Keil/J-Link/OpenOCD，
+  本质是工具封装而非芯片知识，且版权属原作者。
+- `jzl-maker/EA-SKILL`（MIT，Copyright (c) 2026 jzl-maker）——嵌入式 AI 开发管家。
 
-### 依赖口径变更
+### 依赖口径
 
-不再宣称「全部零依赖」，改为三层并在 README 逐项列明：
-
-- 纯标准库：10 个技能
-- 零 pip 但需本机程序：`keil`/`eide`/`gcc`/`jlink`/`openocd`/`probe-rs`/`net`
-- 需 pip 包：`serial`/`terminal`/`can`/`eide`/`schematic-reader`/`ea-skill`
-
-质量门支持技能根目录 `requirements.txt` 声明依赖，并识别包名与 import 名不一致的情况
-（PyYAML→yaml、pyserial→serial、python-can→can、PyMuPDF→fitz）。
-
-### 第三方代码
-
-`ea-skill` 为第三方 MIT 项目（Copyright (c) 2026 jzl-maker），按 MIT 要求保留原 LICENSE，
-`metadata.author` 记为原作者并加 `upstream` 字段注明原样收录。
+12 个技能里 11 个纯标准库；仅 `schematic-reader` 需 `PyMuPDF` 解析 PDF 原理图，
+已在该技能根目录声明 `requirements.txt`。质量门支持声明第三方依赖，并识别包名与
+import 名不一致的情况（PyMuPDF→fitz）。
 
 ### 质量门适配
 
-导入外部技能时暴露出三处过窄规则，已修正：标准库判定改用 `sys.stdlib_module_names`；
-技能内本地模块纳入白名单；触发评测用例从「必须有」改为「有则校验下限」。
+导入这批技能时暴露三处过窄规则，已修正：标准库判定由手写白名单改为
+`sys.stdlib_module_names`（原白名单漏掉 sqlite3/subprocess/shutil/importlib）；
+技能内本地模块（如 `engine.py`）纳入白名单；触发评测用例从「必须有」改为
+「有则校验下限」，纯知识技能不再被阻断。
 
 ## [1.0.0] - 2026-11-25
 
