@@ -4,15 +4,28 @@
     "name": "fangcun"
   },
   "metadata": {
-    "description": "嵌入式开发工具箱：离线、带出处的 Agent 技能五件套（寄存器查询与核验 + 排障决策树 12 棵/77 节点 + 外设配置坑 148 条 + 时序计算器 37 个）"
+    "description": "嵌入式开发工具箱：24 个技能，离线、带出处。寄存器查询与核验、时序计算、排障决策树 12 棵/77 节点、外设坑 148 条，加构建/烧录/调试/联调工具链"
   },
   "plugins": [
     {
       "name": "embedded-toolkit",
       "source": ".",
-      "description": "五个技能：寄存器百事通（CMSIS SVD 查询/解码/宏/对比/体检）+ 寄存器核验器（核验 C 代码寄存器写入，报/未判定/通过分桶）+ 排障决策树（HardFault/通信/DMA/RTOS/启动/低功耗/CAN/USB/Flash/RTC/LCD/FPGA 十二棵树/77 节点）+ 外设避坑清单（二十五类外设 148 坑）+ 时序计算器（UART/定时器/I2C/CAN/ADC/SPI/FPGA 等 37 个计算器）",
+      "description": "嵌入式开发工具箱：24 个技能覆盖固件全流程——寄存器查询与核验、时序计算（37 个）、排障决策树（12 棵/77 节点）、外设配置坑（148 条）、驱动模板、原理图识别，以及 Keil/EIDE/GCC 构建、J-Link/OpenOCD/probe-rs 烧录调试、串口/CAN/网络联调。核心知识技能零依赖离线，结论带出处与证据标签",
       "category": "development",
-      "tags": ["embedded", "mcu", "stm32", "svd", "register", "verify", "debug", "pitfalls"]
+      "tags": [
+        "embedded",
+        "mcu",
+        "stm32",
+        "svd",
+        "register",
+        "verify",
+        "debug",
+        "pitfalls",
+        "keil",
+        "jlink",
+        "serial",
+        "can"
+      ]
     }
   ]
 }

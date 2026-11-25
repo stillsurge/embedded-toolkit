@@ -6,7 +6,7 @@
 [![python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#设计约束)
 
-给 AI 编程助手用的嵌入式技能包。五个技能，一条主线：**AI 负责写得快，工具箱负责验得对**。
+给 AI 编程助手用的嵌入式技能包。24 个技能，一条主线：**AI 负责写得快，工具箱负责验得对**。
 
 > Evidence-first embedded dev skills for AI coding agents — register lookup & code verification from CMSIS-SVD,
 > debug decision trees, peripheral pitfall lists and one-shot timing calculations.
@@ -17,19 +17,57 @@
 模型会把不存在的位名编得很像真的：`USART_CR1_XXX`、超过字段宽度的值、没开时钟就写的寄存器。这类错误
 编译能过、跑起来才发现外设不动，排查成本高。
 
-这五个技能把"查证"变成可执行命令：结论离线算出，每条带 `source`（文件 / 设备 / 版本）与 `label`（证据等级）。
+这 24 个技能把"查证"变成可执行命令：结论离线算出，每条带 `source`（文件 / 设备 / 版本）与 `label`（证据等级）。
 
-## 五个技能
+## 24 个技能
 
-| 技能 | 一句话 | 版本 | 实测证据 |
-|---|---|---|---|
-| **寄存器百事通**<br>`embedded-register-lookup` | 查寄存器 / 位域 / 复位值 / 中断号；地址反查、值解码、宏生成、双芯片对比 | 1.11.1 | 19 家厂商 SVD 冒烟 |
-| **寄存器核验器**<br>`embedded-register-verify` | 核验 C/C++ 里的寄存器写入，按「报 / 未判定 / 通过」分桶 | 1.16.2 | 注入集召回 229/229；9 个真实 SDK 0 误报 |
-| **排障决策树**<br>`embedded-debug-trees` | 12 棵树 77 节点，先取证再判断，不直接开药 | 1.3.1 | 检索评测 CI 强制 |
-| **外设避坑清单**<br>`embedded-peripheral-pitfalls` | 25 类外设 148 个配置坑，每坑 = 症状 + 对策 | 1.2.1 | 检索评测 CI 强制 |
-| **时序计算器**<br>`embedded-timing-calc` | 37 个计算器，结果回显公式与合法性依据 | 1.1.1 | demo 自检通过 |
+按固件工程阶段分组。工具链类技能是薄壳——真正干活的是你本机已装的 Keil / J-Link / OpenOCD，它们负责发现工程、正确拼参数、把日志解析成可用结论。
 
-逐技能的规则、覆盖写法与实测记录见 [`docs/skills/`](docs/skills/)。
+### 设计与编码
+
+| 技能 | 一句话 | 版本 |
+|---|---|---|
+| **寄存器百事通**<br>`embedded-register-lookup` | 查寄存器 / 位域 / 复位值 / 中断号；地址反查、值解码、宏生成、双芯片对比 | 1.11.1 |
+| **寄存器核验器**<br>`embedded-register-verify` | 核验 C/C++ 里的寄存器写入，按「报 / 未判定 / 通过」分桶 | 1.16.2 |
+| **时序计算器**<br>`embedded-timing-calc` | 37 个计算器：波特率、PWM、I2C 上拉、SPI 时序等，回显公式与合法性依据 | 1.1.1 |
+| **驱动模板库**<br>`embedded-driver-templates` | 预验证驱动模板与初始化顺序；算法层纯 C99，平台差异收在 port 层 | 1.0.0 |
+| **原理图识别**<br>`schematic-reader` | 读 Altium / Cadence / KiCad / 立创 EDA / 通用 netlist，把原理图变成可查询的结构 | 1.0.0 |
+| **器件采购避坑**<br>`component-pitfalls` | 元器件与模块选型避坑：参数陷阱、替代料风险、常见虚标 | 1.0.0 |
+
+### 构建与烧录
+
+| 技能 | 一句话 | 版本 |
+|---|---|---|
+| **Keil**<br>`keil` | 扫 `.uvprojx`、枚举 Target、build/rebuild/clean，解析构建日志返回产物路径 | 1.0.0 |
+| **EIDE**<br>`eide` | 扫 `.eide/eide.yml`、枚举 ConfigName、构建并返回产物路径 | 1.0.0 |
+| **GCC**<br>`gcc` | CMake + arm-none-eabi-gcc：预设枚举、构建、ELF 大小分析 | 1.0.0 |
+| **J-Link**<br>`jlink` | 探测、烧录、内存与寄存器读写、复位、RTT/SWO 日志、在线调试 | 1.0.0 |
+| **OpenOCD**<br>`openocd` | 探针探测、烧录、Flash 擦除、GDB Server、Telnet 调试、Semihosting/ITM | 1.0.0 |
+| **probe-rs**<br>`probe-rs` | 探针发现、烧录、内存读写、GDB Server、RTT | 1.0.0 |
+| **调试器安装验收**<br>`mcu-debug-installer` | mcu-debug-mcp 安装引导与首次连接验收，适配任意 stdio MCP 宿主 | 1.1.1 |
+
+### 联调与观测
+
+| 技能 | 一句话 | 版本 |
+|---|---|---|
+| **串口**<br>`serial` | 扫串口、实时监控、发送、刷日志、Hex 查看 | 1.0.0 |
+| **CAN**<br>`can` | CAN / CAN-FD 接口扫描、报文监控与发送、DBC 解码、总线统计 | 1.0.0 |
+| **网络**<br>`net` | 接口发现、tshark 抓包、pcap 分析、连通性测试、端口扫描 | 1.0.0 |
+| **交互终端**<br>`terminal` | 保持上下文的串口 / SSH / 本地 Shell 会话，适合 AT 命令与菜单式 CLI | 1.0.0 |
+| **工作流编排**<br>`workflow` | 薄编排层：发现工程、选 build/flash/debug/observe 后端、串联状态 | 1.0.0 |
+
+### 排障与规范
+
+| 技能 | 一句话 | 版本 |
+|---|---|---|
+| **排障决策树**<br>`embedded-debug-trees` | 12 棵树 77 节点，先取证再判断，不直接开药 | 1.3.1 |
+| **外设避坑清单**<br>`embedded-peripheral-pitfalls` | 25 类外设 148 个配置坑，每坑 = 症状 + 对策 | 1.2.1 |
+| **静默失败诊断**<br>`silent-toolchain-failure-diagnosis` | 「工具装了但一跑就静默失败」：rc≠0 却无输出、被误判成沙箱/权限问题 | 1.0.0 |
+| **真机故障注入**<br>`mcu-hardfault-live-verify` | 在真实板子上注入故障 → 抓寄存器 → 反查出错函数，证明能力在真硅上成立 | 1.0.0 |
+| **硬件工具安全隔离**<br>`hw-tool-safety-isolation` | 给会真正操作硬件的工具加默认安全隔离与强制检查 | 1.0.0 |
+| **嵌入式 AI 管家**<br>`ea-skill` | 面向 Keil/CubeMX/ESP-IDF/PlatformIO/Arduino 的开发、测试、烧录、调试全流程<br>（第三方 MIT 项目，原作者 jzl-maker） | 1.0.0 |
+
+逐技能的规则、覆盖写法与实测记录见 [`docs/skills/`](docs/skills/)（已覆盖五个核心知识技能，工具链类以各 `SKILL.md` 为准）。
 
 ## 四个典型场景
 
@@ -80,7 +118,7 @@ CodeBuddy、Trae、Windsurf、Cline、Roo、OpenCode、Gemini CLI、GitHub Copil
 
 加 `-g` 装到用户级目录（所有项目可用），不加则装到当前项目目录。
 
-**只装其中一个**（不想五个全装）：
+**只装其中一个**（24 个不必全装）：
 
 ```bash
 npx skills add stillsurge/embedded-toolkit --skill embedded-register-lookup -a claude-code
@@ -122,17 +160,51 @@ Copy-Item -Recurse "$HOME\.codebuddy\skills\embedded-*" "$HOME\.workbuddy\skills
 从 [Releases](https://github.com/stillsurge/embedded-toolkit/releases) 下载 zip，解压后把 `skills/` 下的
 文件夹复制到目标 Agent 的技能目录。
 
-| 包 | 大小 | 适用 |
-|---|---|---|
-| `embedded-toolkit-vX.Y.Z.zip` | 296 KB | 全部五个技能 |
-| `embedded-register-lookup-vX.Y.Z.zip` | 65 KB | 只查寄存器 |
-| `embedded-register-verify-vX.Y.Z.zip` | 99 KB | 只核验代码 |
-| `embedded-debug-trees-vX.Y.Z.zip` | 50 KB | 只要排障树 |
-| `embedded-peripheral-pitfalls-vX.Y.Z.zip` | 46 KB | 只要避坑清单 |
-| `embedded-timing-calc-vX.Y.Z.zip` | 36 KB | 只要时序计算 |
+| 包 | 适用 |
+|---|---|
+| `embedded-toolkit-vX.Y.Z.zip` | 全部 24 个技能 |
+| `<技能名>-vX.Y.Z.zip` | 单个技能，按需下载 |
 
-也可以直接复制仓库里的 `skills/<技能名>/` 整个文件夹。每个技能自带 `etk_core` 副本，
-零 `pip install`、零外部依赖、不联网，复制到任何位置都能独立运行。
+也可以直接复制仓库里的 `skills/<技能名>/` 整个文件夹，复制到任何位置都能独立运行。
+
+### 依赖说明
+
+分三类，别指望全部零依赖：
+
+**① 纯 Python，什么都不用装**
+
+lookup、verify、debug-trees、peripheral-pitfalls、timing-calc、driver-templates、
+component-pitfalls、mcu-hardfault-live-verify、hw-tool-safety-isolation、workflow
+
+只用 Python 3.10+ 标准库（`workflow` 是编排层，需配合下面任意后端）。
+
+**② 零 pip 依赖，但要装本机程序**
+
+| 技能 | 需要本机已有 |
+|---|---|
+| `keil` | Keil MDK（`UV4.exe`） |
+| `eide` | VS Code EIDE 扩展 + `arm-none-eabi-gcc` |
+| `gcc` | `arm-none-eabi-gcc` + CMake |
+| `jlink` | SEGGER J-Link 软件 + 探针 |
+| `openocd` | `openocd` + 探针 |
+| `probe-rs` | `probe-rs` CLI + 探针 |
+| `net` | `tshark`（Wireshark 命令行） |
+
+未安装时脚本明确报错并指出缺什么，不会静默失败（这正是 `silent-toolchain-failure-diagnosis` 处理的问题）。
+
+**③ 需要 pip 包**
+
+| 技能 | 依赖 |
+|---|---|
+| `serial`、`terminal` | `pyserial` |
+| `can` | `python-can`、`cantools` |
+| `eide` | `PyYAML` |
+| `schematic-reader` | `PyMuPDF` |
+| `ea-skill` | `numpy`、`matplotlib`、`pyvisa`、`pyserial` |
+
+每个技能根目录有 `requirements.txt`，`pip install -r requirements.txt` 即可。
+
+所有技能都**不联网**（`net` 主动抓包除外，且不上传任何数据），**不执行用户代码**。
 
 **让 Agent 更愿意查库（建议）**：强编码模型常凭记忆直接回答"配置有哪些坑"类问题。把下面一段加进项目的
 `CLAUDE.md` 或系统提示，可显著提高查库率：
@@ -215,7 +287,7 @@ python skills/embedded-register-verify/scripts/verify.py check main.c --chip STM
 |---|---|
 | 芯片 / 厂商 | 任何有 CMSIS SVD 的芯片：ST、GigaDevice、Nordic、NXP、Renesas、Microchip 等（Keil / cpackget 设备包）；ESP32 系列、RP2040 由 SDK 自带 SVD 自动发现 |
 | SVD 来源 | `--svd` 指定 / 项目内扫描（深度 ≤6）/ 环境变量 `ETK_SVD_DIR` / 本机 CMSIS-Pack 缓存 / PlatformIO、Arduino15、ESP-IDF、Pico SDK 自带 SVD |
-| 工具链 | Keil MDK、STM32CubeMX、PlatformIO、ESP-IDF、Arduino、Zephyr、nRF Connect SDK 的目录结构；Windows / macOS / Linux；Python 3.10+，零依赖、离线 |
+| 工具链 | Keil MDK、STM32CubeMX、PlatformIO、ESP-IDF、Arduino、Zephyr、nRF Connect SDK 的目录结构；Windows / macOS / Linux；Python 3.10+；核心知识技能零依赖离线，工具链类需对应本机程序 |
 | 代码写法 | CMSIS 结构体与宏、厂商别名、地址别名宏、`HWREG`、C/C++ 与 Arduino；ESP-IDF 风格寄存器宏明确记「未判定」 |
 
 完整写法清单见 [`docs/skills/embedded-register-verify.md`](docs/skills/embedded-register-verify.md)。
