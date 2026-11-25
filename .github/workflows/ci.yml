@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -12,9 +15,17 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python: ["3.9", "3.12"]
+        # ubuntu-latest 已滚到 26.04，该镜像没有 Python 3.9 构建；
+        # 3.9 兼容性改在 ubuntu-22.04 上验证，其余组合仍用 latest。
+        include:
+          - os: ubuntu-22.04
+            python: "3.9"
+        exclude:
+          - os: ubuntu-latest
+            python: "3.9"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
       - name: 安装开发依赖（运行时无第三方依赖）
