@@ -1,6 +1,6 @@
 ---
 name: embedded-code-reviewer
-description: 一段嵌入式C/C++代码喂进来，30秒揪出会让板子死机的雷：ISR里调延时函数、共享变量缺volatile、数组越界、除零、memcpy超限等28条规则，逐条附MISRA C:2012/C++:2008映射与修复建议，一键生成中文HTML审查报告，支持CI门禁。
+description: 一段嵌入式C/C++代码喂进来，30秒揪出会让板子死机的雷：ISR里调延时函数、共享变量缺volatile、数组越界、除零、memcpy超限等27条规则，逐条附MISRA C:2012/C++:2008映射与修复建议，一键生成中文HTML审查报告，支持CI门禁。
 license: MIT
 compatibility: Python 3.10+，仅标准库，离线运行；不联网、不执行用户代码。
 metadata:
@@ -70,7 +70,7 @@ python reviewer.py --dir ./src all --html report.html   # 目录 + HTML 报告
 
 exit code：0=无问题、1=发现问题、2=用法/内部错误（CI 集成友好）。
 
-## 检测规则速查（28 条）
+## 检测规则速查（27 条）
 
 | # | 级别 | 规则 | 一句话 |
 |---|------|------|--------|

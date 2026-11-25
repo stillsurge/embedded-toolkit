@@ -17,7 +17,7 @@
 - [ ] 版本号已同步（`SKILL.md` metadata.version 与 scripts 的 `__version__`）
 - [ ] `CHANGELOG.md` 已记录
 - [ ] `README.md` / `docs/skills/` 已在行为变化时更新
-- [ ] 未引入第三方运行时依赖，未联网，未 `eval` / `exec`
+- [ ] 未联网、未 `eval` / `exec` / `compile`；如确需第三方包，已在技能根 `requirements.txt` 声明
 
 ## 备注
 

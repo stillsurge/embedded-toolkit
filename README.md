@@ -40,7 +40,7 @@
 |---|---|---|
 | **嵌入式代码生成器**<br>`embedded-code-generator` | 15 类嵌入式 C 模块（PI 控制器、RS485、CRC、环形缓冲、SVPWM 等），产出可编译的 .h + .c | 1.1.1 |
 | **嵌入式驱动模板库**<br>`embedded-driver-templates` | 9 款常用驱动模板（DHT11/DS18B20/SSD1306/MPU6050 等）+ 外设初始化顺序查询 | 1.0.0 |
-| **嵌入式C/C++代码审查器**<br>`embedded-code-reviewer` | 28 条规则查真雷：ISR 里调延时、共享变量缺 volatile、数组越界等，每条附 MISRA 编号与修复建议 | 1.1.1 |
+| **嵌入式C/C++代码审查器**<br>`embedded-code-reviewer` | 27 条规则查真雷：ISR 里调延时、共享变量缺 volatile、数组越界等，每条附 MISRA 编号与修复建议 | 1.1.1 |
 | **嵌入式寄存器写入审计器**<br>`embedded-register-verify` | 核验 C/C++ 里的寄存器写入是否与芯片 SVD 一致，按「报 / 未判定 / 通过」分桶 | 1.16.2 |
 | **嵌入式外设配置巡检器**<br>`embedded-peripheral-pitfalls` | 25 类外设 148 个配置坑，每坑 = 症状 + 对策 | 1.2.1 |
 

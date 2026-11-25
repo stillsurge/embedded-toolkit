@@ -159,15 +159,29 @@ def check_skills():
     return issues
 
 
+SKIP_DIRS = {"__pycache__", "tests", "test", "etk_core"}
+
+
 def _runtime_files():
+    """运行时 Python 文件：shared/etk_core 全量 + 各技能内全部 .py。
+
+    不能只扫 scripts/：部分技能的入口脚本放在技能根目录（reviewer.py、main.py、
+    ota_audit.py），只扫 scripts/ 会让这些文件绕过模块白名单与禁 eval 校验。
+    etk_core 副本不重复计入（shared 已覆盖），tests 不计入（测试可用第三方）。
+    """
     files = []
     core = os.path.join(ROOT, "shared", "etk_core")
     files.extend(os.path.join(core, f) for f in sorted(os.listdir(core)) if f.endswith(".py"))
     base = os.path.join(ROOT, "skills")
     for name in sorted(os.listdir(base)):
-        scripts = os.path.join(base, name, "scripts")
-        if os.path.isdir(scripts):
-            files.extend(os.path.join(scripts, f) for f in sorted(os.listdir(scripts)) if f.endswith(".py"))
+        skill_dir = os.path.join(base, name)
+        if not os.path.isdir(skill_dir):
+            continue
+        for root, dirs, fnames in os.walk(skill_dir):
+            dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+            for f in sorted(fnames):
+                if f.endswith(".py"):
+                    files.append(os.path.join(root, f))
     return files
 
 
@@ -269,6 +283,35 @@ def check_no_dynamic_exec():
     return issues
 
 
+DESC_WARN = 900
+
+
+def check_warnings():
+    """非阻断项：不失败，但值得处理。
+
+    description 上限 1024 是多个 Agent 的硬限制，超限时 ZCode 会静默丢弃整个技能
+    （不报错、不截断，用户只看到"装了没反应"）。接近上限时提前提示，留出加触发词
+    的余量。
+    """
+    warns = []
+    base = os.path.join(ROOT, "skills")
+    for name in sorted(os.listdir(base)):
+        md = os.path.join(base, name, "SKILL.md")
+        if not os.path.isfile(md):
+            continue
+        with open(md, encoding="utf-8") as fh:
+            text = fh.read()
+        try:
+            meta, _ = parse_frontmatter(text)
+        except ValueError:
+            continue
+        desc = meta.get("description", "")
+        if len(desc) > DESC_WARN:
+            warns.append("%s：description %d 字符，距 1024 上限仅 %d，建议精简后再加触发词"
+                         % (name, len(desc), 1024 - len(desc)))
+    return warns
+
+
 def run_all():
     return (check_sync() + check_skills() + check_py310() + check_stdlib()
             + check_demo_assets() + check_no_dynamic_exec())
@@ -277,6 +320,8 @@ def run_all():
 def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    for item in check_warnings():
+        print("警告：" + item)
     issues = run_all()
     if issues:
         for item in issues:

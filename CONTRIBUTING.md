@@ -24,31 +24,49 @@ CI 在 ubuntu / windows / macOS × Python 3.10 / 3.12 上跑这三条，任一�
 
 **改动 `shared/etk_core` 却忘了 `sync_core.py`，质量门一定失败**——各技能必须自带核心库副本，这是分发前提。
 
+## 收录前提
+
+本仓库是**公开发布渠道**，不是开发仓库。入库前该技能必须满足：
+
+1. **已在平台上线**（WorkBuddy / SkillHub / ClawHub 任一），状态为已发布或 live。
+   本地做完但没上过平台的，先别进这里——用户 clone 下来会拿到半成品。
+2. **自研或授权明确**。第三方项目不收；确需收录的必须保留原 LICENSE 与原作者署名。
+3. **只收嵌入式相关**。通用工具、教学/毕设类技能不属于本仓库范围。
+
 ## 质量门检查什么
+
+`python tools/check_repo.py` 退出码非 0 即不通过。
 
 | 检查项 | 判定 |
 |---|---|
-| 核心库同步 | 各技能 `scripts/etk_core/` 与 `shared/etk_core/` 逐文件一致 |
-| SKILL.md | frontmatter 合法、`name` 与目录名一致、`description` ≤ 1024 字符、正文 ≤ 500 行 |
-| 版本一致 | `metadata.version` 等于 `scripts/*.py` 的 `__version__` |
-| 触发用例 | `tests/trigger/<技能名>.json` 存在，正例 ≥ 20、反例 ≥ 10 |
-| Python 兼容 | 运行时代码通过 Python 3.10 语法解析 |
-| 依赖约束 | 运行时代码只 import 标准库 |
-| 演示数据 | 各技能 `assets/demo.svd` 与 `embedded-register-lookup` 的副本一致 |
+| 核心库同步 | 带 `scripts/etk_core/` 的技能，副本与 `shared/etk_core/` 逐文件一致 |
+| SKILL.md 存在 | `skills/<技能名>/SKILL.md` 必须存在 |
+| frontmatter | 可解析；`name` 匹配 `^[a-z0-9]+(-[a-z0-9]+)*$`、≤64、等于目录名；`description` 非空且 ≤1024；`compatibility` ≤500；正文 ≤500 行 |
+| 版本一致 | 脚本里写了 `__version__`，就必须等于 `metadata.version`；脚本没写版本号不阻断 |
+| 触发用例 | **可选**。`tests/trigger/<技能名>.json` 存在时校验正例 ≥20、反例 ≥10；缺失不阻断 |
+| Python 兼容 | 技能内全部 `.py`（不含 `tests/`）通过 Python 3.10 语法解析 |
+| 依赖约束 | 只允许标准库、技能内本地模块，或在技能根 `requirements.txt` 声明；支持 `包名  # import: 模块名` 的映射写法 |
+| 演示数据 | 存在 `assets/demo.svd` 的技能，其副本必须与 `embedded-register-lookup` 的一致 |
 | 安全约束 | 运行时代码不得调用 `eval` / `exec` / `compile` |
+
+另有一类**警告**（不阻断退出码，但建议处理）：`description` 超过 900 字符时提示。
+上限 1024 是多个 Agent 的硬限制，ZCode 超限会**静默丢弃整个技能**——不报错、不截断，
+用户只看到「装了没反应」。留出余量再加触发词。
 
 ## 新增一个技能
 
-1. 建 `skills/<技能名>/`，目录名必须匹配 `^[a-z0-9]+(-[a-z0-9]+)*$`。
+1. 建 `skills/<技能名>/`，目录名必须匹配 `^[a-z0-9]+(-[a-z0-9]+)*$`，且与 `name` 完全一致。
 2. `SKILL.md` 的 frontmatter 包含 `name`、`description`、`license`、`compatibility`、
-   `metadata.author`、`metadata.version`；正文控制在 500 行以内，细节放 `references/`。
+   `metadata.author`、`metadata.version`；正文 ≤500 行，细节放 `references/`。
    `description` 前半段写**用户会说的症状句**（中文优先），后半段写英文触发词与「不用于」边界。
-3. `scripts/` 放入口脚本，写 `__version__`，并与 `metadata.version` 保持一致。
+3. 入口脚本放 `scripts/`（或技能根目录也可，质量门两处都扫）；写 `__version__` 的话
+   必须与 `metadata.version` 一致。
 4. 需要共用 SVD 解析时，运行 `python tools/sync_core.py` 生成 `scripts/etk_core/` 副本，不要手写。
-5. `tests/trigger/<技能名>.json` 补正例 ≥ 20、反例 ≥ 10。
-6. 在 `README.md` 技能表与 `docs/skills/` 补充说明，在 `.claude-plugin/plugin.json` 与
-   `marketplace.json` 更新技能清单。
-7. `CHANGELOG.md` 记一条。
+5. 有触发用例就放 `tests/trigger/<技能名>.json`（正例 ≥20、反例 ≥10）；没有也能入库。
+6. 在 `README.md` 技能表补充一行，在 `.claude-plugin/plugin.json` 与 `marketplace.json`
+   更新描述与 tags，`CHANGELOG.md` 记一条。
+7. 需要第三方包时，在技能根建 `requirements.txt`，用 `包名  # import: 模块名` 标注
+   import 名不一致的情况（如 `PyMuPDF  # import: fitz`）。
 
 ## 提交信息
 

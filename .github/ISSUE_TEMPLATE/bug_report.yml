@@ -26,7 +26,7 @@ body:
     attributes:
       label: 版本
       description: 技能版本（`SKILL.md` 的 metadata.version）或插件版本（plugin.json）
-      placeholder: "例如 lookup 1.11.1 / plugin 1.24.2"
+      placeholder: "例如 lookup 1.11.1 / plugin 1.4.0"
     validations:
       required: true
   - type: input
