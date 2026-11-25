@@ -6,7 +6,7 @@
 [![python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#设计约束)
 
-给 AI 编程助手用的嵌入式技能包。25 个自研技能，一条主线：**AI 负责写得快，工具箱负责验得对**。
+给 AI 编程助手用的嵌入式技能包。15 个已发布的自研技能，一条主线：**AI 负责写得快，工具箱负责验得对**。
 
 > Evidence-first embedded dev skills for AI coding agents — register lookup & code verification from CMSIS-SVD,
 > debug decision trees, peripheral pitfall lists and one-shot timing calculations.
@@ -17,11 +17,12 @@
 模型会把不存在的位名编得很像真的：`USART_CR1_XXX`、超过字段宽度的值、没开时钟就写的寄存器。这类错误
 编译能过、跑起来才发现外设不动，排查成本高。
 
-这 25 个技能把"查证"变成可执行命令：结论离线算出，每条带 `source`（文件 / 设备 / 版本）与 `label`（证据等级）。
+这 15 个技能把"查证"变成可执行命令：结论离线算出，每条带 `source`（文件 / 设备 / 版本）与 `label`（证据等级）。
 
-## 25 个技能
+## 15 个技能
 
-全部为本仓库自研，不含第三方技能。按固件工程阶段分四组。
+全部为本仓库自研，且**均已在 WorkBuddy / SkillHub / ClawHub 发布上线**，本仓库只做 GitHub 侧的分发入口。
+按固件工程阶段分四组。
 
 ### 设计与选型
 
@@ -29,32 +30,25 @@
 |---|---|---|
 | **嵌入式寄存器查询器**<br>`embedded-register-lookup` | 查寄存器 / 位域 / 复位值 / 中断号；地址反查、值解码、宏生成、双芯片对比 | 1.11.1 |
 | **嵌入式时序计算器**<br>`embedded-timing-calc` | 37 个计算器：波特率、PWM、I2C 上拉、SPI 时序等，回显公式与合法性依据 | 1.1.1 |
-| **硬件计算器**<br>`hw-calc` | 硬件审查专用：37 项通用时序电气计算 + 晶振负载电容、去耦容量 2 项硬件专属 | 1.1.2 |
-| **器件选型库**<br>`hw-component-lib` | 常用器件参数与替代查询，按封装、电气参数筛选 | 1.0.0 |
 | **元器件选型避坑指南**<br>`component-pitfalls` | 渠道四级分级、四类假芯片识别、五步验真、缺货替代链、220V 与锂电安全红线 | 1.0.0 |
 | **原理图识别器**<br>`schematic-reader` | 解析 Altium / Cadence / KiCad / 立创 / OrCAD / EAGLE / 网表，输出引脚级网表与连通性查询 | 1.0.3 |
 | **PCB 布局自查清单**<br>`hw-pcb-review` | 布局自查打勾与报告生成，覆盖电源、地、USB、晶振等高频出错点 | 1.0.0 |
-| **硬件审查清单**<br>`hw-review-checklist` | 硬件设计评审逐项核对表，按模块给出检查项与判据 | 1.0.0 |
 
 ### 编码与审查
 
 | 技能 | 一句话 | 版本 |
 |---|---|---|
-| **嵌入式代码生成器**<br>`embedded-code-generator` | 常用外设与外设组合的代码模板，生成可编译骨架 | 1.1.1 |
+| **嵌入式代码生成器**<br>`embedded-code-generator` | 15 类嵌入式 C 模块（PI 控制器、RS485、CRC、环形缓冲、SVPWM 等），产出可编译的 .h + .c | 1.1.1 |
 | **嵌入式驱动模板库**<br>`embedded-driver-templates` | 9 款常用驱动模板（DHT11/DS18B20/SSD1306/MPU6050 等）+ 外设初始化顺序查询 | 1.0.0 |
-| **嵌入式C/C++代码审查器**<br>`embedded-code-reviewer` | 28 条规则查真雷：ISR 里调延时、共享变量缺 volatile、数组越界等，每条附 MISRA C:2012/C++:2008 编号与修复建议 | 1.1.1 |
+| **嵌入式C/C++代码审查器**<br>`embedded-code-reviewer` | 28 条规则查真雷：ISR 里调延时、共享变量缺 volatile、数组越界等，每条附 MISRA 编号与修复建议 | 1.1.1 |
 | **嵌入式寄存器写入审计器**<br>`embedded-register-verify` | 核验 C/C++ 里的寄存器写入是否与芯片 SVD 一致，按「报 / 未判定 / 通过」分桶 | 1.16.2 |
 | **嵌入式外设配置巡检器**<br>`embedded-peripheral-pitfalls` | 25 类外设 148 个配置坑，每坑 = 症状 + 对策 | 1.2.1 |
-| **嵌入式协议一致性检查器**<br>`embedded-protocol-consistency` | 检查协议实现与文档/枚举的一致性，定位字段错位与取值越界 | 1.0.0 |
-| **嵌入式协议报文解析器**<br>`embedded-protocol-parser` | 按协议定义拆解报文，输出字段级解释与异常标注 | 1.0.0 |
 
 ### 调试与升级
 
 | 技能 | 一句话 | 版本 |
 |---|---|---|
 | **嵌入式故障诊断器**<br>`embedded-debug-trees` | 12 棵树 77 节点，先取证再判断，不直接开药 | 1.3.1 |
-| **FPGA/RTL 故障诊断器**<br>`embedded-fpga-trees` | RTL 与 Gowin 综合日志排障：时序违例、约束缺失、综合警告定位 | 1.1.0 |
-| **FOC 故障诊断器**<br>`embedded-foc-diagnose` | 电机 FOC 控制故障定位：电流采样、角度估算、环路异常 | 1.1.0 |
 | **嵌入式OTA升级工具包**<br>`embedded-ota-toolkit` | OTA/Bootloader 升级链路静态审计，15 条防砖规则，可出报告并入 CI 门禁 | 1.2.0 |
 | **FPGA 仿真工作台**<br>`embedded-fpga-sim` | testbench 模板与仿真判读，覆盖 counter / FIFO / SPI 从机 / CDC 等场景 | 1.0.0 |
 
@@ -63,12 +57,12 @@
 | 技能 | 一句话 | 版本 |
 |---|---|---|
 | **产品出厂测试方案**<br>`embedded-production-test` | 按板型与规格生成产线测试规范，含电流上下限、节拍、老化温循 | 1.0.0 |
-| **嵌入式单元测试生成器**<br>`embedded-unit-test-gen` | 为外设驱动与算法生成单元测试骨架，含桩函数与断言模板 | 1.0.0 |
-| **嵌入式固件体积分析器**<br>`embedded-firmware-size` | 分析 ELF/Map 的体积构成，定位占用大户与可裁剪段 | 1.0.0 |
 | **电机PID调参器**<br>`motor-pid-tuner` | 电流 / 速度 / 位置环参数计算，含 ZN 整定、离散化、抗饱和、死区补偿 | 1.1.1 |
-| **MCU 调试 MCP 安装引导**<br>`mcu-debug-installer` | mcu-debug-mcp 安装引导与首次连接验收，适配任意 stdio MCP 宿主 | 1.1.1 |
 
 逐技能的规则、覆盖写法与实测记录见 [`docs/skills/`](docs/skills/)（覆盖五个核心知识技能）。
+
+> 收录边界：只收**已在 WorkBuddy / SkillHub / ClawHub 发布上线**的自研技能。
+> 本地还在开发或未上过平台的不放进公开仓库，避免用户拿到半成品。
 
 > 关于工具链：Keil / J-Link / OpenOCD / 串口 / CAN 这类"驱动本机工具"的技能不在本仓库。
 > 需要的话用 [`zhinkgit/embeddedskills`](https://github.com/zhinkgit/embeddedskills)（MIT），
@@ -167,18 +161,18 @@ Copy-Item -Recurse "$HOME\.codebuddy\skills\embedded-*" "$HOME\.workbuddy\skills
 
 | 包 | 适用 |
 |---|---|
-| `embedded-toolkit-vX.Y.Z.zip` | 全部 25 个技能 |
+| `embedded-toolkit-vX.Y.Z.zip` | 全部 15 个技能 |
 | `<技能名>-vX.Y.Z.zip` | 单个技能，按需下载 |
 
 也可以直接复制仓库里的 `skills/<技能名>/` 整个文件夹，复制到任何位置都能独立运行。
 
 ### 依赖说明
 
-25 个技能里 24 个只用 Python 3.10+ 标准库；`schematic-reader` 解析 PDF 需 pymupdf（可选，缺省时只提示不安装）：
+15 个技能里 14 个只用 Python 3.10+ 标准库；`schematic-reader` 解析 PDF 需 pymupdf（可选，缺省时只提示不安装）：
 
 | 技能 | 依赖 |
 |---|---|
-| 24 个 | 无第三方包。`lookup` 与 `verify` 自带 `etk_core` 副本，其余为纯知识库或模板 |
+| 14 个 | 无第三方包。`lookup` 与 `verify` 自带 `etk_core` 副本，其余为纯知识库或模板 |
 | `schematic-reader` | 可选 `PyMuPDF`（仅 PDF 文本层需要）；技能根目录有 `requirements.txt`，不加 `--install-pymupdf` 时只提示不安装 |
 
 所有技能都**不联网**、**不执行用户代码**，也不依赖任何本机烧录器/调试器。

@@ -6,49 +6,49 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
-## [1.3.0] - 2026-11-25
+## [1.4.0] - 2026-11-25
 
-技能从 14 个扩到 **25 个**。前几轮依赖人工清单判断范围，清单本身不完整；
-本轮改为直接扫描开发源 `D:\work\.dev\ls\src` 全部嵌入式相关技能，按源盘点入册。
+收录标准改为**只收已在平台上线的技能**：公开仓库面向外部用户，放进去的必须是能直接
+装来用的成品，不能是本地还没上过平台的半成品。
 
-### 新增 11 个
+判定依据不再靠人工回想清单，改用发布档案 `D://work//.dev//ls//packages//发布台账.json`
+（该文件自述「判定是否已发布唯一依据是本台账 status + 确认备注」），合并 `assets`
+（平台资产）与 `_待提交清单`（本地待提交）两块，取 `status=published` 或
+`skillhub`/`clawhub` 为 `live` 的条目。
 
-| 技能 | 中文名 | 版本 |
-|---|---|---|
-| `hw-calc` | 硬件计算器（37 项通用 + 晶振 CL、去耦容量） | 1.1.2 |
-| `hw-component-lib` | 器件选型库 | 1.0.0 |
-| `hw-review-checklist` | 硬件审查清单 | 1.0.0 |
-| `schematic-reader` | 原理图识别器 | 1.0.3 |
-| `embedded-protocol-consistency` | 嵌入式协议一致性检查器 | 1.0.0 |
-| `embedded-protocol-parser` | 嵌入式协议报文解析器 | 1.0.0 |
-| `embedded-fpga-trees` | FPGA/RTL 故障诊断器 | 1.1.0 |
-| `embedded-foc-diagnose` | FOC 故障诊断器 | 1.1.0 |
-| `embedded-unit-test-gen` | 嵌入式单元测试生成器 | 1.0.0 |
-| `embedded-firmware-size` | 嵌入式固件体积分析器 | 1.0.0 |
-| `mcu-debug-installer` | MCU 调试 MCP 安装引导 | 1.1.1 |
+### 移出 10 个未发布技能
 
-### 收录判据
+以下技能在台账中状态为 `not_published`，或明确列入 `_不单独发布`（源码保留在专家包 /
+主仓内，不作为独立技能发布），全部从公开仓库移出：
 
-只扫开发源下的嵌入式相关专家包（embedded-dev / embedded-debugger / embedded-fpga /
-embedded-protocol / embedded-tester / hardware-design / motor-control）、团队包
-`team/embedded-team/skills` 与独立技能源 `src/skills`。教学类 `grad-project-*` 不计。
+| 技能 | 台账状态 |
+|---|---|
+| `embedded-foc-diagnose` | `_不单独发布` |
+| `embedded-fpga-trees` | `_不单独发布` |
+| `embedded-protocol-consistency` | `_不单独发布` |
+| `embedded-protocol-parser` | `_不单独发布` |
+| `embedded-firmware-size` | `_不单独发布` |
+| `embedded-unit-test-gen` | `_不单独发布` |
+| `hw-calc` | `_不单独发布` |
+| `hw-component-lib` | `_不单独发布` |
+| `hw-review-checklist` | `_不单独发布` |
+| `mcu-debug-installer` | `_不单独发布`（2026-10-27 已拍板退场：专家人设已内置连接引导） |
 
-同名技能取文件数与版本高者：例如 `embedded-debug-trees` 保留仓库侧 1.3.1，
-而非团队包内被重置的 1.0.0。
+### 保留 15 个
 
-### 版本对齐
+均已上线（`skillhub` 或 `clawhub` 为 `live`，或 `status=published`）：
 
-三处 `SKILL.md` 与脚本 `__version__` 不一致已修正：`embedded-fpga-trees` 的
-`gowin_log.py`/`rtl_check.py` 升到 1.1.0；`hw-calc` 的 `SKILL.md` 改为脚本的 1.1.2。
+`embedded-register-lookup`、`embedded-register-verify`、`embedded-timing-calc`、
+`embedded-debug-trees`、`embedded-peripheral-pitfalls`、`embedded-driver-templates`、
+`embedded-code-generator`、`embedded-code-reviewer`、`embedded-ota-toolkit`、
+`embedded-fpga-sim`、`embedded-production-test`、`motor-pid-tuner`、
+`schematic-reader`、`component-pitfalls`、`hw-pcb-review`
 
-### frontmatter
+### 其他
 
-15 个文件存在重复的 frontmatter 结束符 `---`（拼接时多写一次），已全部清理。
-
-### 依赖
-
-25 个中 24 个零第三方依赖；`schematic-reader` 的 PDF 文本层需 pymupdf，
-默认只提示安装命令，显式 `--install-pymupdf` 才会安装，其余格式用自带纯 Python 解析器。
+- README 技能表由 25 项收回 15 项，补「收录边界」说明
+- 依赖口径：15 个中 14 个纯标准库，仅 `schematic-reader` 的 PDF 文本层需可选 `pymupdf`
+- `plugin.json` 聚合版本 1.3.0 → 1.4.0
 
 ## [1.3.0] - 2026-11-25
 
