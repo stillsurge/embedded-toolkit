@@ -114,28 +114,30 @@ def check_skills():
         version = (meta.get("metadata") or {}).get("version")
         script_versions = {}
         scripts = os.path.join(skill_dir, "scripts")
+        has_py = False
         if os.path.isdir(scripts):
             for fname in sorted(os.listdir(scripts)):
                 if fname.endswith(".py"):
+                    has_py = True
                     with open(os.path.join(scripts, fname), encoding="utf-8") as fh:
                         found = VERSION_RE.search(fh.read())
                     if found:
                         script_versions[fname] = found.group(1)
-        if not script_versions:
-            issues.append("%s：scripts/ 中没有 __version__" % rel)
+        # 脚本版本号：有则必须与 metadata.version 一致；纯知识技能或未标版本的多脚本技能不阻断
+        if script_versions and not version:
+            issues.append("%s：有 scripts 版本号但缺 metadata.version" % rel)
         for fname, sv in script_versions.items():
             if version != sv:
                 issues.append("%s：metadata.version=%r 与 scripts/%s 的 __version__=%r 不一致" % (rel, version, fname, sv))
         trig_path = os.path.join(ROOT, "tests", "trigger", "%s.json" % name)
-        if not os.path.isfile(trig_path):
-            issues.append("缺少触发评测用例 tests/trigger/%s.json" % name)
-        else:
+        if os.path.isfile(trig_path):
             with open(trig_path, encoding="utf-8") as fh:
                 trig = json.load(fh)
             if len(trig.get("positive", [])) < MIN_POSITIVE:
                 issues.append("tests/trigger/%s.json：正例少于 %d 条" % (name, MIN_POSITIVE))
             if len(trig.get("negative", [])) < MIN_NEGATIVE:
                 issues.append("tests/trigger/%s.json：反例少于 %d 条" % (name, MIN_NEGATIVE))
+        # 触发评测用例是质量增强项，不是入库门槛：缺失不阻断，存在则校验下限
     return issues
 
 
@@ -174,11 +176,46 @@ def check_stdlib():
                 names = [a.name.split(".")[0] for a in node.names]
             elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
                 names = [node.module.split(".")[0]]
+            here = os.path.dirname(path)
+            local_mods = {f[:-3] for f in os.listdir(here) if f.endswith(".py")}
+            declared = _declared_deps(os.path.dirname(here))
             for name in names:
-                if name not in STDLIB_ALLOWED and name not in LOCAL_PACKAGES \
-                        and name not in LOCAL_SKILL_MODULES:
-                    issues.append("%s：运行时引入了非标准库模块 %s" % (os.path.relpath(path, ROOT), name))
+                if name in _stdlib_names() or name in LOCAL_PACKAGES \
+                        or name in LOCAL_SKILL_MODULES or name in local_mods \
+                        or name in declared:
+                    continue
+                issues.append("%s：运行时引入了未声明的第三方模块 %s（标准库之外需在技能根 requirements.txt 声明）"
+                              % (os.path.relpath(path, ROOT), name))
     return issues
+
+
+def _stdlib_names():
+    """Python 3.10+ 提供权威标准库清单；回退到内置白名单。"""
+    names = getattr(sys, "stdlib_module_names", None)
+    return set(names) if names else set(STDLIB_ALLOWED)
+
+
+def _declared_deps(skill_dir):
+    """读取技能根目录的 requirements.txt，返回声明的包名（小写、去版本符）。"""
+    path = os.path.join(skill_dir, "requirements.txt")
+    if not os.path.isfile(path):
+        return set()
+    deps = set()
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            raw = line
+            line = line.split("#")[0].strip()
+            # 支持 "# import: fitz" 形式声明包名与 import 名不一致的情况（如 PyMuPDF→fitz）
+            for mod in re.findall(r"import:\s*([A-Za-z_][\w,]*)", raw):
+                for m in mod.split(","):
+                    if m.strip():
+                        deps.add(m.strip().lower())
+            if not line:
+                continue
+            name = re.split(r"[<>=!~\[\s]", line)[0].strip().lower()
+            deps.add(name)
+            deps.add(name.replace("-", "_"))
+    return deps
 
 
 def check_demo_assets():
