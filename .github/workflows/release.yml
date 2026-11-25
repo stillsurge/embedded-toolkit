@@ -32,7 +32,7 @@ jobs:
         run: |
           TAG="${GITHUB_REF_NAME}"
 
-          # 整包：一次装全部五个
+          # 整包：一次装全部技能
           zip -r "embedded-toolkit-${TAG}.zip" skills \
             -x "*/__pycache__/*" "*.pyc" "*/.pytest_cache/*"
 

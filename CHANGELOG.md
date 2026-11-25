@@ -6,6 +6,42 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.1.0] - 2026-11-25
+
+技能从 5 个扩到 **24 个**，覆盖固件工程全流程。仓库范围严格限定为嵌入式相关，
+毕设导师类（grad-project / capstone 共 10 个）属教学场景，未收录。
+
+### 新增技能
+
+**构建**：`keil`（MDK 工程扫描与构建）、`eide`（EIDE 工程）、`gcc`（CMake + arm-none-eabi-gcc，含 ELF 大小分析）。
+
+**烧录与调试**：`jlink`（烧录/内存/寄存器/RTT/SWO/在线调试）、`openocd`（探针/烧录/GDB Server/Telnet/ITM）、`probe-rs`（探针/烧录/GDB/RTT）。
+
+**联调与观测**：`serial`（串口监控/发送/Hex）、`can`（CAN/CAN-FD/DBC 解码）、`net`（tshark 抓包/pcap 分析）、`terminal`（保持上下文的交互会话）、`workflow`（build/flash/debug/observe 编排层）。
+
+**设计与排障**：`embedded-driver-templates`（驱动模板与初始化顺序）、`schematic-reader`（Altium/Cadence/KiCad/立创/网表解析）、`component-pitfalls`（器件选型避坑）、`silent-toolchain-failure-diagnosis`（工具装了但静默失败）、`mcu-hardfault-live-verify`（真机故障注入验证）、`hw-tool-safety-isolation`（硬件操作工具安全隔离）、`mcu-debug-installer`（mcu-debug-mcp 安装验收）、`ea-skill`（全流程开发管家）。
+
+### 依赖口径变更
+
+不再宣称「全部零依赖」，改为三层并在 README 逐项列明：
+
+- 纯标准库：10 个技能
+- 零 pip 但需本机程序：`keil`/`eide`/`gcc`/`jlink`/`openocd`/`probe-rs`/`net`
+- 需 pip 包：`serial`/`terminal`/`can`/`eide`/`schematic-reader`/`ea-skill`
+
+质量门支持技能根目录 `requirements.txt` 声明依赖，并识别包名与 import 名不一致的情况
+（PyYAML→yaml、pyserial→serial、python-can→can、PyMuPDF→fitz）。
+
+### 第三方代码
+
+`ea-skill` 为第三方 MIT 项目（Copyright (c) 2026 jzl-maker），按 MIT 要求保留原 LICENSE，
+`metadata.author` 记为原作者并加 `upstream` 字段注明原样收录。
+
+### 质量门适配
+
+导入外部技能时暴露出三处过窄规则，已修正：标准库判定改用 `sys.stdlib_module_names`；
+技能内本地模块纳入白名单；触发评测用例从「必须有」改为「有则校验下限」。
+
 ## [1.0.0] - 2026-11-25
 
 首个正式版本。此前的 v1.0.0 ~ v1.24.2 全部是 2026-10-15 至 10-21 的开发期迭代，未作为对外
