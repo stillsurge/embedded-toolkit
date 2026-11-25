@@ -250,6 +250,96 @@ def _declared_deps(skill_dir):
     return deps
 
 
+RELEASE_MANIFEST = os.path.join(ROOT, "release", "published.json")
+MANIFEST_STATES = {"synced", "ahead", "behind", "unverified"}
+PLATFORM_KEYS = {"skillhub", "clawhub", "workbuddy"}
+
+
+def load_manifest():
+    """读取发布白名单；返回 (entries_by_name, issues)。"""
+    if not os.path.isfile(RELEASE_MANIFEST):
+        return {}, ["缺少 release/published.json —— 本仓库是发布渠道，任何技能入库前必须在此登记"]
+    with open(RELEASE_MANIFEST, encoding="utf-8") as fh:
+        try:
+            data = json.load(fh)
+        except json.JSONDecodeError as exc:
+            return {}, ["release/published.json 不是合法 JSON：%s" % exc]
+    entries = {}
+    issues = []
+    for item in data.get("skills", []):
+        name = item.get("name", "")
+        if not name:
+            issues.append("release/published.json：有条目缺少 name")
+            continue
+        if name in entries:
+            issues.append("release/published.json：%s 重复登记" % name)
+        entries[name] = item
+    return entries, issues
+
+
+def check_published():
+    """发布白名单与实际技能目录必须双向一致，且版本可追溯。
+
+    这条检查是仓库定位的执行体：GitHub 是发布渠道，不是开发仓库。没在平台上线的
+    技能根本不该出现在这里，所以「目录有、白名单没有」和「白名单有、目录没有」
+    都按错误处理，而不是警告。
+    """
+    entries, issues = load_manifest()
+    base = os.path.join(ROOT, "skills")
+    if not os.path.isdir(base):
+        return issues + ["缺少 skills/ 目录"]
+    on_disk = sorted(n for n in os.listdir(base) if os.path.isdir(os.path.join(base, n)))
+
+    for name in on_disk:
+        if name not in entries:
+            issues.append("skills/%s：未在 release/published.json 登记。新技能必须先上平台发布、"
+                          "再登记入库，未到发布程度的不要提交" % name)
+    for name in sorted(entries):
+        if name not in on_disk:
+            issues.append("release/published.json：登记了 %s 但 skills/ 下没有该目录" % name)
+
+    for name in sorted(set(on_disk) & set(entries)):
+        item = entries[name]
+        state = item.get("state", "")
+        if state not in MANIFEST_STATES:
+            issues.append("%s：state=%r 非法，只能是 %s" % (name, state, "/".join(sorted(MANIFEST_STATES))))
+        if state != "synced" and not str(item.get("plan", "")).strip():
+            issues.append("%s：state=%s 必须在 plan 里写清待办（要做什么、卡在哪），否则等于把半成品混进发布仓库" % (name, state))
+
+        md = os.path.join(base, name, "SKILL.md")
+        if not os.path.isfile(md):
+            continue
+        with open(md, encoding="utf-8") as fh:
+            try:
+                meta, _ = parse_frontmatter(fh.read())
+            except ValueError:
+                continue
+        skill_version = (meta.get("metadata") or {}).get("version")
+        if skill_version != item.get("version"):
+            issues.append("%s：release/published.json 记的版本 %r 与 SKILL.md 的 %r 不一致"
+                          % (name, item.get("version"), skill_version))
+
+        platform = item.get("platform") or {}
+        unknown = set(platform) - PLATFORM_KEYS
+        if unknown:
+            issues.append("%s：platform 出现未知平台 %s" % (name, sorted(unknown)))
+        if state == "synced":
+            if not platform:
+                issues.append("%s：state=synced 但没有平台发布记录，无法证明上过线" % name)
+            for key, ver in platform.items():
+                if ver != item.get("version"):
+                    issues.append("%s：state=synced 但 %s 版本 %s 与仓库版本 %s 不符"
+                                  % (name, key, ver, item.get("version")))
+    return issues
+
+
+def pending_sync():
+    """返回尚未与平台对齐的技能清单，供发布前检查与提示使用。"""
+    entries, _ = load_manifest()
+    return [(n, e.get("state", ""), str(e.get("plan", "")).strip())
+            for n, e in sorted(entries.items()) if e.get("state") != "synced"]
+
+
 def check_demo_assets():
     """内置演示数据（assets/demo.svd）在各技能里的副本必须一致（以 lookup 技能为源）。"""
     canonical = os.path.join(ROOT, "skills", "embedded-register-lookup", "assets", "demo.svd")
@@ -313,7 +403,7 @@ def check_warnings():
 
 
 def run_all():
-    return (check_sync() + check_skills() + check_py310() + check_stdlib()
+    return (check_sync() + check_skills() + check_published() + check_py310() + check_stdlib()
             + check_demo_assets() + check_no_dynamic_exec())
 
 
@@ -322,6 +412,11 @@ def main():
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     for item in check_warnings():
         print("警告：" + item)
+    pending = pending_sync()
+    if pending:
+        print("提示：%d 个技能尚未与平台版本对齐（详见 release/published.json 的 plan 字段）：" % len(pending))
+        for name, state, plan in pending:
+            print("  - %s [%s] %s" % (name, state, plan))
     issues = run_all()
     if issues:
         for item in issues:

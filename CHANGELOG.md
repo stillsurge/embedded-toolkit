@@ -6,6 +6,51 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [Unreleased]
+
+把「什么算发布、什么时候能推上来」从口头约定变成可执行的门禁。此前的状态是：仓库里既有
+未上平台的改动（`ahead`），也有落后平台的旧版本（`behind`），但没有任何机制能发现。
+
+### 发布流程
+
+- 新增 `docs/release-process.md`：三区模型（开发区 / 发布区 / 归档区）、四条发布准入
+  条件（R1 已上平台 / R2 过门禁 / R3 版本可追溯 / R4 文档同步）、版本号规则、升级与新增与
+  退役三条操作路径、门禁矩阵、七种常见错法。
+- 新增 `release/published.json`：发布白名单，也是「能不能进这个仓库」的唯一判定依据。
+  每条记录仓库版本、各平台已发布版本、`state`（`synced` / `ahead` / `behind` / `unverified`）
+  与 `plan`。非 `synced` 必须写清待办，否则质量门失败。
+- `tools/check_repo.py` 新增 `check_published()`：技能目录与白名单双向比对，未登记的报
+  「新技能必须先上平台发布、再登记入库」，版本三处（白名单 / `SKILL.md` / 平台）必须一致。
+  另在通过时打印一份未对齐清单，让问题在每次 CI 都被看见。
+- 新增 `tools/check_release.py`：发布前体检，查质量门、测试、平台对齐、版本递增、索引卫生
+  （禁止提交 `__pycache__`/`*.pyc`）、隐私泄露（本机绝对路径 / 用户名 / 令牌）、文档页齐全、
+  `plugin.json` 版本在 CHANGELOG 有对应段、打包体积与文件数预演。
+- `release.yml` 新增发版守卫：tag 版本必须等于 `plugin.json` 版本、`CHANGELOG.md` 必须有该
+  版本段，否则直接失败、不出 Release。并改为 `fetch-depth: 0` 以支持版本递增检查。
+- `CONTRIBUTING.md` 的收录前提、质量门表格、新增技能步骤按实际规则重写；PR 模板拆出
+  「发布合规」小节。
+
+### 已知待办
+
+本轮**不发版**——按新流程，平台未对齐的技能不允许发出去。`check_release.py` 现存 10 项：
+
+- `behind` 6 个：debug-trees（仓库 1.3.1 / 平台 1.4.0，FPGA 拆分未回灌）、driver-templates、
+  peripheral-pitfalls、register-lookup、register-verify、timing-calc。
+- `ahead` 3 个：code-generator 1.1.1、code-reviewer 1.1.2、motor-pid-tuner 1.1.1，改动已进
+  仓库但尚未提交平台。
+- `unverified` 1 个：component-pitfalls，台账记 `not_published` 但批次包存在，需后台核实。
+
+### 修复
+
+- `.claude-plugin/plugin.json` 与 `marketplace.json` 的「审查 28 条」改为 27 条（四处口径
+  此前修过，这两个 JSON 漏了）。
+- `references/misra-mapping.md` 缺规则 27（数组形参上 `sizeof`）一行，表格只到 26 条。
+  审查器因此升到 **1.1.2**（补齐映射表属于内容变更，按流程必须升版本），并补上
+  `reviewer.py` 的 `__version__`，让版本一致性检查能覆盖到它。
+- `check_release.py` 的版本递增检查在 Windows 上静默失效：`os.path.join` 产生反斜杠，
+  `git show tag:skills\x\SKILL.md` 返回 128，检查结果恒为空。改为显式正斜杠后，
+  用「改动未升版本」和「还原」两步变异测试确认能拦住。
+
 ## [1.4.1] - 2026-11-25
 
 公开仓库全面体检后的一轮修复：两个真实缺陷、一处文档误导、文档覆盖补齐，

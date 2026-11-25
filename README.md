@@ -21,7 +21,8 @@
 
 ## 15 个技能
 
-全部为本仓库自研，且**均已在 WorkBuddy / SkillHub / ClawHub 发布上线**，本仓库只做 GitHub 侧的分发入口。
+全部为本仓库自研，且**均已在 WorkBuddy / SkillHub / ClawHub 发布上线**。本仓库是发布渠道而不是
+开发仓库：进到这里的内容都是能直接装来用的成品，开发中的技能留在本地，不推上来。
 按固件工程阶段分四组。
 
 ### 设计与选型
@@ -40,7 +41,7 @@
 |---|---|---|
 | **嵌入式代码生成器**<br>`embedded-code-generator` | 15 类嵌入式 C 模块（PI 控制器、RS485、CRC、环形缓冲、SVPWM 等），产出可编译的 .h + .c | 1.1.1 |
 | **嵌入式驱动模板库**<br>`embedded-driver-templates` | 9 款常用驱动模板（DHT11/DS18B20/SSD1306/MPU6050 等）+ 外设初始化顺序查询 | 1.0.0 |
-| **嵌入式C/C++代码审查器**<br>`embedded-code-reviewer` | 27 条规则查真雷：ISR 里调延时、共享变量缺 volatile、数组越界等，每条附 MISRA 编号与修复建议 | 1.1.1 |
+| **嵌入式C/C++代码审查器**<br>`embedded-code-reviewer` | 27 条规则查真雷：ISR 里调延时、共享变量缺 volatile、数组越界等，每条附 MISRA 编号与修复建议 | 1.1.2 |
 | **嵌入式寄存器写入审计器**<br>`embedded-register-verify` | 核验 C/C++ 里的寄存器写入是否与芯片 SVD 一致，按「报 / 未判定 / 通过」分桶 | 1.16.2 |
 | **嵌入式外设配置巡检器**<br>`embedded-peripheral-pitfalls` | 25 类外设 148 个配置坑，每坑 = 症状 + 对策 | 1.2.1 |
 
@@ -292,6 +293,7 @@ python -m pip install -r requirements-dev.txt
 python tools/sync_core.py     # 把 shared/etk_core 同步到各技能（技能必须自带核心库）
 python tools/check_repo.py    # 仓库质量门：同步、SKILL.md 规范、3.10 语法、仅标准库、不 eval
 python -m pytest -q           # 单元与集成测试
+python tools/check_release.py # 发布前体检：平台对齐、版本递增、隐私、打包预演
 
 # 真实厂商 SVD 测试（可选）：指向本机 .svd 目录，多个目录用系统路径分隔符连接
 ETK_TEST_SVD_DIR=/path/to/svd-dir python -m pytest tests/test_real_svd.py
@@ -300,17 +302,20 @@ ETK_TEST_SVD_DIR=/path/to/svd-dir python -m pytest tests/test_real_svd.py
 ```
 shared/etk_core/     共享核心源码（唯一来源）
 skills/<技能名>/     每个技能一个文件夹：SKILL.md、scripts/（含 etk_core 副本）、references/
-tools/               同步与质量检查工具
+tools/               同步、质量门与发布体检工具
+release/             发布白名单（published.json）：哪些技能可以出现在这里
 tests/               单元测试、合成夹具、触发评测用例（tests/trigger/）
 benchmarks/          真实样本核对记录与基准数据
 docs/skills/         各技能的详细能力说明
+docs/release-process.md  发布流程与准入门槛
 .claude-plugin/      Claude Code 插件与市场清单
 ```
 
 改动 `shared/etk_core` 后必须运行 `python tools/sync_core.py`，否则质量门失败。
 
-贡献流程、质量门检查项与新增技能的步骤见 [CONTRIBUTING.md](CONTRIBUTING.md)；版本变更见
-[CHANGELOG.md](CHANGELOG.md)。
+贡献流程、质量门检查项与新增技能的步骤见 [CONTRIBUTING.md](CONTRIBUTING.md)；什么算"可以
+发布"、怎么升版本、怎么打 tag 见 [docs/release-process.md](docs/release-process.md)；
+版本变更见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 限制
 

@@ -104,6 +104,8 @@ import os
 import json
 from typing import Optional
 
+__version__ = "1.1.2"
+
 
 # 阻塞函数列表（不应在ISR中调用）
 BLOCKING_FUNCS = [

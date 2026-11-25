@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.10+，仅标准库，离线运行；不联网、不执行用户代码。
 metadata:
   author: fangcun
-  version: "1.1.1"
+  version: "1.1.2"
   display_name: 嵌入式C/C++代码审查器
   display_name_en: Embedded C/C++ Code Reviewer
   examples_zh:
