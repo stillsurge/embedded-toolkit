@@ -74,6 +74,21 @@ git push origin v1.5.0
 顺序不能颠倒：先上平台、再改 `published.json`、最后打 tag。反过来就是"仓库先于平台"，
 又回到 `ahead` 状态。
 
+### 4.1.1 平台发布之后必须回灌
+
+平台上传成功不等于结束。上传用的是开发区那份代码，本仓库那份还是旧的——不回灌就会变成
+`behind`：用户在 GitHub 下到的是带 bug 的旧版本，而平台上早就修好了。
+
+每次平台发布后固定做三件事：
+
+1. 把开发区该技能目录同步到 `skills/<技能名>/`（`SKILL.md` 保留本仓库的标准
+   frontmatter 格式，不能直接覆盖成平台格式）。
+2. `release/published.json` 里该条目：`version` 改成新版本，`platform` 各平台版本同步，
+   `state` 改 `synced`，`plan` 清空。
+3. `python tools/check_release.py --skip-tests` 确认没有残留 `behind`。
+
+`behind` 一旦出现就在每次 CI 里被点名，直到回灌为止——这是刻意设计的噪音，避免它被忘掉。
+
 ### 4.2 新增技能
 
 1. **先在开发区把技能做完**，打包上平台，拿到 live。
