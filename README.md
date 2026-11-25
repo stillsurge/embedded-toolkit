@@ -80,6 +80,14 @@ CodeBuddy、Trae、Windsurf、Cline、Roo、OpenCode、Gemini CLI、GitHub Copil
 
 加 `-g` 装到用户级目录（所有项目可用），不加则装到当前项目目录。
 
+**只装其中一个**（不想五个全装）：
+
+```bash
+npx skills add stillsurge/embedded-toolkit --skill embedded-register-lookup -a claude-code
+```
+
+`--skill` 后面跟技能名，多个技能用空格分隔（`--skill a b`，不能用逗号）。
+
 ### 实测落盘位置
 
 | Agent | `-a` 标识 | 用户级目录 |
@@ -109,12 +117,22 @@ Copy-Item -Recurse "$HOME\.codebuddy\skills\embedded-*" "$HOME\.workbuddy\skills
 /plugin install embedded-toolkit@embedded-toolkit
 ```
 
-### 手动安装
+### 手动安装（不用 CLI）
 
-从 [Releases](https://github.com/stillsurge/embedded-toolkit/releases) 下载 `embedded-toolkit-vX.Y.Z.zip`，
-把其中的 `skills/*` 解压到目标 Agent 的 skills 目录。也可以直接复制 `skills/<技能名>/` 整个文件夹。
+从 [Releases](https://github.com/stillsurge/embedded-toolkit/releases) 下载 zip，解压后把 `skills/` 下的
+文件夹复制到目标 Agent 的技能目录。
 
-每个技能自带 `etk_core` 副本，零 `pip install`、零外部依赖、不联网。
+| 包 | 大小 | 适用 |
+|---|---|---|
+| `embedded-toolkit-vX.Y.Z.zip` | 296 KB | 全部五个技能 |
+| `embedded-register-lookup-vX.Y.Z.zip` | 65 KB | 只查寄存器 |
+| `embedded-register-verify-vX.Y.Z.zip` | 99 KB | 只核验代码 |
+| `embedded-debug-trees-vX.Y.Z.zip` | 50 KB | 只要排障树 |
+| `embedded-peripheral-pitfalls-vX.Y.Z.zip` | 46 KB | 只要避坑清单 |
+| `embedded-timing-calc-vX.Y.Z.zip` | 36 KB | 只要时序计算 |
+
+也可以直接复制仓库里的 `skills/<技能名>/` 整个文件夹。每个技能自带 `etk_core` 副本，
+零 `pip install`、零外部依赖、不联网，复制到任何位置都能独立运行。
 
 **让 Agent 更愿意查库（建议）**：强编码模型常凭记忆直接回答"配置有哪些坑"类问题。把下面一段加进项目的
 `CLAUDE.md` 或系统提示，可显著提高查库率：

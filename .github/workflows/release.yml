@@ -31,18 +31,28 @@ jobs:
       - name: 打包技能
         run: |
           TAG="${GITHUB_REF_NAME}"
+
+          # 整包：一次装全部五个
           zip -r "embedded-toolkit-${TAG}.zip" skills \
             -x "*/__pycache__/*" "*.pyc" "*/.pytest_cache/*"
-          echo "== 包内前 15 项 =="
+
+          # 单技能包：只想装一个的人不用下整包
+          for d in skills/*/; do
+            name=$(basename "$d")
+            zip -r "${name}-${TAG}.zip" "skills/${name}" \
+              -x "*/__pycache__/*" "*.pyc" "*/.pytest_cache/*"
+          done
+
+          echo "== 产物 =="
+          ls -lh *.zip
+          echo "== 整包前 15 项 =="
           unzip -l "embedded-toolkit-${TAG}.zip" | head -20
-          echo "== 大小 =="
-          ls -lh "embedded-toolkit-${TAG}.zip"
 
       - name: 发布 GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${GITHUB_REF_NAME}"
-          gh release create "$TAG" "embedded-toolkit-${TAG}.zip" \
+          gh release create "$TAG" *.zip \
             --title "$TAG" \
             --generate-notes
