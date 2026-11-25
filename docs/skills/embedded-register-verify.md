@@ -57,3 +57,9 @@
 - 真实源码 0 误报：ESP-IDF v4.4.7（224 处写入）、TI TivaWare（363 处）、libopencm3 STM32F1（366 处，3 处为文件级时钟检查在库代码上的已知限制）、AVR Arduino 核心（33 处）、Microchip SAMD 核心（49 处）、Renesas RA FSP（36 处）、Silicon Labs Gecko SDK emlib（318/309 处 × 3 份 SVD）、NXP MCUXpresso（23 文件）、pico-sdk 2.1.0（22 文件 / 47 处写入，RP2040）
 
 详见 `benchmarks/verify-dogfood.md`。
+
+## 边界
+
+不用于：HAL/LL 结构体配置语义（这类会进「未判定」）、外挂器件命令（Flash、传感器）、时序正确性、通用代码风格、寄存器事实查询（用 `embedded-register-lookup`）。
+
+只认 SVD 里的名字与命名约定，不做完整 C 解析、不跨文件分析；E07 时钟使能是**文件级**检查，使能在其它文件时用 `--no-clock-check` 关闭该项。
