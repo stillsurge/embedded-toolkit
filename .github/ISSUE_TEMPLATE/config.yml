@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 先读文档（安装 / 快速上手 / 配置）
+    url: https://github.com/stillsurge/embedded-toolkit
+    about: 安装方式、零配置试用、芯片配置与设计约束都在 README
+  - name: 各技能详细说明
+    url: https://github.com/stillsurge/embedded-toolkit/tree/main/docs/skills
+    about: 核验规则、覆盖的代码写法、决策树清单、计算器清单与实测记录

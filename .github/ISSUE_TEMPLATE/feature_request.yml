@@ -1,0 +1,44 @@
+name: 功能建议
+description: 新的芯片族支持、新的核验规则、新的决策树/坑位/计算器
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 建议类型
+      options:
+        - 新芯片 / 新 SVD 来源支持
+        - 新核验规则（E 编号）
+        - 新排障决策树 / 节点
+        - 新外设坑位
+        - 新时序计算器
+        - 输出格式 / 集成方式
+        - 其他
+    validations:
+      required: true
+  - type: textarea
+    id: pain
+    attributes:
+      label: 你遇到的具体问题
+      description: 说明现在怎么做、卡在哪，比抽象需求更有用
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 期望的用法
+      description: 希望的命令、输入与输出示例
+      render: bash
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 可核验的依据
+      description: 手册章节、SVD 片段、厂商头文件、实测数据
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: 约束确认
+      options:
+        - label: 该功能可以在离线、零第三方依赖的前提下实现
+          required: true

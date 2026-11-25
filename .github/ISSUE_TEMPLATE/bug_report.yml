@@ -1,0 +1,66 @@
+name: 问题报告
+description: 查询结果不对、核验误报/漏报、命令报错
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        寄存器类问题请尽量附全信息，核对速度差别很大。
+        提交前请先跑 `python tools/check_repo.py` 与 `python -m pytest -q`，确认不是本地环境问题。
+  - type: dropdown
+    id: skill
+    attributes:
+      label: 涉及的技能
+      options:
+        - embedded-register-lookup（寄存器百事通）
+        - embedded-register-verify（寄存器核验器）
+        - embedded-debug-trees（排障决策树）
+        - embedded-peripheral-pitfalls（外设避坑清单）
+        - embedded-timing-calc（时序计算器）
+        - 仓库工具（tools/、测试、CI）
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: 技能版本（`SKILL.md` 的 metadata.version）或插件版本（plugin.json）
+      placeholder: "例如 lookup 1.11.1 / plugin 1.24.2"
+    validations:
+      required: true
+  - type: input
+    id: chip
+    attributes:
+      label: 芯片与 SVD 来源
+      description: 芯片型号 + SVD 来自哪个厂商包/路径（寄存器类问题必填）
+      placeholder: "例如 STM32G431RB，CMSIS-Pack Keil STM32G4xx_DFP 1.6.0"
+  - type: textarea
+    id: command
+    attributes:
+      label: 完整命令
+      render: bash
+      placeholder: python skills/embedded-register-lookup/scripts/lookup.py lookup USART1.CR1.UE --chip STM32G431
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际输出
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望输出与依据
+      description: 手册页号、截图或官方头文件定义
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: 环境
+      placeholder: "例如 Windows 11 / Python 3.12.10"
+    validations:
+      required: true
