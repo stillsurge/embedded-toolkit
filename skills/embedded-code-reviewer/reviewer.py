@@ -2272,6 +2272,7 @@ def generate_html_report(result: dict) -> str:
         return _html.escape(str(s), quote=True)
 
     issues_by_file = []
+    scan_desc = "审查结果"
     if result.get("success") and result.get("mode") == "directory":
         for f in result.get("files", []):
             if f.get("success") and f.get("issues"):
@@ -2280,6 +2281,10 @@ def generate_html_report(result: dict) -> str:
     elif result.get("success"):
         issues_by_file.append({"file": result.get("file", ""), "issues": result.get("issues", [])})
         scan_desc = f"审查文件 {result.get('file', '')}"
+    else:
+        # 审查未完成（文件不存在、语法错误等）：仍渲染一份报告说明失败原因，
+        # 但必须给 scan_desc 兜底，否则下面拼接时 UnboundLocalError。
+        scan_desc = "审查未完成：%s" % result.get("error", "未知错误")
 
     summary = result.get("summary", {})
     sev_cnt = {"high": summary.get("high", 0),

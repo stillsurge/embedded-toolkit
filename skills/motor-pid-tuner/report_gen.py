@@ -10,6 +10,8 @@ import sys
 import os
 import json
 import datetime
+
+__version__ = "1.1.1"
 import argparse
 
 # 导入main.py中的计算函数
@@ -602,7 +604,7 @@ footer{{margin-top:30px;color:var(--muted);font-size:12px;border-top:1px solid v
 <li><b>加入抗积分饱和</b>：输出限幅时必须启用 clamping 或 back-calculation</li>
 <li><b>温升补偿</b>：电机发热严重时用 tempcomp 模式检查 Rs 漂移影响</li>
 </ol>
-<footer>本报告由 motor-pid-tuner 1.0.0 自动生成 · 阶跃响应为线性模型仿真，实际调试需结合电机响应微调 · 单文件 HTML，可直接分享/存档</footer>
+<footer>本报告由 motor-pid-tuner {report_version} 自动生成 · 阶跃响应为线性模型仿真，实际调试需结合电机响应微调 · 单文件 HTML，可直接分享/存档</footer>
 </body>
 </html>""".format(
         model=esc(r.get("motor_model", "未指定")),
@@ -611,6 +613,7 @@ footer{{margin-top:30px;color:var(--muted);font-size:12px;border-top:1px solid v
         cards=cards_html,
         curves='<div class="curves">%s</div>' % (cur_svg + spd_svg) if (cur_svg or spd_svg) else "",
         checks=checks_html if checks_html else '<div class="okline">无校验数据（参数不全）</div>',
+        report_version=__version__,
         prot=('<h2>故障保护阈值建议</h2><table><tr><th>保护类型</th><th>阈值</th><th>说明</th></tr>%s</table>' % prot_rows) if prot_rows else "",
     )
 

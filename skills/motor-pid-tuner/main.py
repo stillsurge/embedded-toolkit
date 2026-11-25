@@ -17,6 +17,8 @@ import json
 import math
 import sys
 
+__version__ = "1.1.1"
+
 # 位置环数字域Kd提示（Kd按Kd/Ts离散后数值巨大属正常，定点化需注意）
 KD_DIGITAL_NOTE = ("数字域 Kd = Kd_continuous / Ts 数值较大属正常现象，"
                    "定点化实现时建议先对 Kd 缩放（如按 2^-n 移位）或直接使用浮点运算，避免 Q 格式溢出。")

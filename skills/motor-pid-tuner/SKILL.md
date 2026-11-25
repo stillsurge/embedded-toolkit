@@ -178,7 +178,7 @@ python main.py --mode <mode> [参数...]
 | **量产** | `protection` | 故障保护阈值（过流/过压/过温/堵转/I2t） |
 | **量产** | `tempcomp` | 温度补偿（Rs/磁链温漂+代码） |
 | **无感** | `startup` | 无感启动策略（I/F+高频注入） |
-| **报告** | `report` | 一键生成完整调参报告(Markdown) |
+| **报告** | `report_gen.py`（独立脚本，非 --mode） | 一键生成完整调参报告(Markdown) |
 
 **各模式参数说明：**
 
