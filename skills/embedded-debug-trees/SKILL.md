@@ -8,7 +8,6 @@ metadata:
   version: "1.3.1"
   display_name: 嵌入式故障诊断器
 ---
----
 
 # 嵌入式排障决策树
 

@@ -8,7 +8,6 @@ metadata:
   version: "1.11.1"
   display_name: 嵌入式寄存器查询器
 ---
----
 
 # 寄存器百事通
 

@@ -6,6 +6,94 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.3.0] - 2026-11-25
+
+技能从 14 个扩到 **25 个**。前几轮依赖人工清单判断范围，清单本身不完整；
+本轮改为直接扫描开发源 `D:\work\.dev\ls\src` 全部嵌入式相关技能，按源盘点入册。
+
+### 新增 11 个
+
+| 技能 | 中文名 | 版本 |
+|---|---|---|
+| `hw-calc` | 硬件计算器（37 项通用 + 晶振 CL、去耦容量） | 1.1.2 |
+| `hw-component-lib` | 器件选型库 | 1.0.0 |
+| `hw-review-checklist` | 硬件审查清单 | 1.0.0 |
+| `schematic-reader` | 原理图识别器 | 1.0.3 |
+| `embedded-protocol-consistency` | 嵌入式协议一致性检查器 | 1.0.0 |
+| `embedded-protocol-parser` | 嵌入式协议报文解析器 | 1.0.0 |
+| `embedded-fpga-trees` | FPGA/RTL 故障诊断器 | 1.1.0 |
+| `embedded-foc-diagnose` | FOC 故障诊断器 | 1.1.0 |
+| `embedded-unit-test-gen` | 嵌入式单元测试生成器 | 1.0.0 |
+| `embedded-firmware-size` | 嵌入式固件体积分析器 | 1.0.0 |
+| `mcu-debug-installer` | MCU 调试 MCP 安装引导 | 1.1.1 |
+
+### 收录判据
+
+只扫开发源下的嵌入式相关专家包（embedded-dev / embedded-debugger / embedded-fpga /
+embedded-protocol / embedded-tester / hardware-design / motor-control）、团队包
+`team/embedded-team/skills` 与独立技能源 `src/skills`。教学类 `grad-project-*` 不计。
+
+同名技能取文件数与版本高者：例如 `embedded-debug-trees` 保留仓库侧 1.3.1，
+而非团队包内被重置的 1.0.0。
+
+### 版本对齐
+
+三处 `SKILL.md` 与脚本 `__version__` 不一致已修正：`embedded-fpga-trees` 的
+`gowin_log.py`/`rtl_check.py` 升到 1.1.0；`hw-calc` 的 `SKILL.md` 改为脚本的 1.1.2。
+
+### frontmatter
+
+15 个文件存在重复的 frontmatter 结束符 `---`（拼接时多写一次），已全部清理。
+
+### 依赖
+
+25 个中 24 个零第三方依赖；`schematic-reader` 的 PDF 文本层需 pymupdf，
+默认只提示安装命令，显式 `--install-pymupdf` 才会安装，其余格式用自带纯 Python 解析器。
+
+## [1.3.0] - 2026-11-25
+
+技能从 14 个扩到 **25 个**。前几轮依赖人工清单判断范围，清单本身不完整；
+本轮改为直接扫描开发源 `D:\work\.dev\ls\src` 全部嵌入式相关技能，按源盘点入册。
+
+### 新增 11 个
+
+| 技能 | 中文名 | 版本 |
+|---|---|---|
+| `hw-calc` | 硬件计算器（37 项通用 + 晶振 CL、去耦容量） | 1.1.2 |
+| `hw-component-lib` | 器件选型库 | 1.0.0 |
+| `hw-review-checklist` | 硬件审查清单 | 1.0.0 |
+| `schematic-reader` | 原理图识别器 | 1.0.3 |
+| `embedded-protocol-consistency` | 嵌入式协议一致性检查器 | 1.0.0 |
+| `embedded-protocol-parser` | 嵌入式协议报文解析器 | 1.0.0 |
+| `embedded-fpga-trees` | FPGA/RTL 故障诊断器 | 1.1.0 |
+| `embedded-foc-diagnose` | FOC 故障诊断器 | 1.1.0 |
+| `embedded-unit-test-gen` | 嵌入式单元测试生成器 | 1.0.0 |
+| `embedded-firmware-size` | 嵌入式固件体积分析器 | 1.0.0 |
+| `mcu-debug-installer` | MCU 调试 MCP 安装引导 | 1.1.1 |
+
+### 收录判据
+
+只扫开发源下的嵌入式相关专家包（embedded-dev / embedded-debugger / embedded-fpga /
+embedded-protocol / embedded-tester / hardware-design / motor-control）、团队包
+`team/embedded-team/skills` 与独立技能源 `src/skills`。教学类 `grad-project-*` 不计。
+
+同名技能取文件数与版本高者：例如 `embedded-debug-trees` 保留仓库侧 1.3.1，
+而非团队包内被重置的 1.0.0。
+
+### 版本对齐
+
+三处 `SKILL.md` 与脚本 `__version__` 不一致已修正：`embedded-fpga-trees` 的
+`gowin_log.py`/`rtl_check.py` 升到 1.1.0；`hw-calc` 的 `SKILL.md` 改为脚本的 1.1.2。
+
+### frontmatter
+
+15 个文件存在重复的 frontmatter 结束符 `---`（拼接时多写一次），已全部清理。
+
+### 依赖
+
+25 个中 24 个零第三方依赖；`schematic-reader` 的 PDF 文本层需 pymupdf，
+默认只提示安装命令，显式 `--install-pymupdf` 才会安装，其余格式用自带纯 Python 解析器。
+
 ## [1.2.0] - 2026-11-25
 
 技能从 12 个扩到 **14 个**，全部为自研。收录标准：只收自己开发的嵌入式技能。

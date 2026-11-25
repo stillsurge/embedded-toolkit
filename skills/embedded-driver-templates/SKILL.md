@@ -8,7 +8,6 @@ metadata:
   version: "1.0.0"
   display_name: 嵌入式驱动模板库
 ---
----
 
 # 嵌入式驱动模板库 1.0.0
 

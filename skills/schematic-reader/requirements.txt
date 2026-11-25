@@ -1,0 +1,2 @@
+# PDF 文本层解析（可选，缺省时自动降级为只提示）
+PyMuPDF  # import: fitz

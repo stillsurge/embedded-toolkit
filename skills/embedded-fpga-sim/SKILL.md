@@ -13,7 +13,6 @@ metadata:
   - 这个跨时钟域信号处理对吗
   - 波形上全是 X 态怎么找源头
 ---
----
 
 # FPGA 仿真工作台（embedded-fpga-sim）
 

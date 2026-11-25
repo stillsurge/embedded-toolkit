@@ -13,7 +13,6 @@ metadata:
   - 老化测试要测什么、判多少
   - ESD 抽检方案怎么做
 ---
----
 
 # 产品出厂测试方案（embedded-production-test）
 

@@ -8,7 +8,6 @@ metadata:
   version: "1.2.1"
   display_name: 嵌入式外设配置巡检器
 ---
----
 
 # 嵌入式外设配置坑清单
 
