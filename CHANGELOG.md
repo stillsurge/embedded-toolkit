@@ -6,6 +6,33 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [Unreleased]
+
+1.5.0 发布后发现的三处 GitHub 侧问题，都属于"页面上的话与实际不符"，不影响包内容。
+
+### 修复
+
+- **仓库 About 描述还停在五个技能**：GitHub 仓库首页标题旁那句写着「五个技能 / 排障决策树 12 棵 / 77 节点」，
+  而仓库早已是 15 个技能、11 棵 69 节点。已改为 15 个技能的准确描述，topics 从 11 个补到 20 个
+  （补 misra、code-review、debugging、pid-control、ota、pcb、fpga、schematic、claude-code、ai-agent）。
+- **Release 说明只有一行 Full Changelog**：v1.2.0 / v1.4.0 / v1.4.1 / v1.5.0 四个版本的说明都是
+  自动生成的一行链接，下载页的人看不出这版改了什么。四个版本都按 CHANGELOG 补成可读的说明。
+- **插件市场描述与实际不符**：`.claude-plugin/plugin.json` 与 `marketplace.json` 里写着
+  「均已在 WorkBuddy / SkillHub / ClawHub 发布上线」「故障诊断树 12 棵」。前者不实（3 个技能
+  只在 WorkBuddy 市场），后者过期（11 棵）。改为只讲能力、不讲发布渠道。
+- `docs/skills/embedded-fpga-sim.md` 的边界写着「用 `embedded-fpga-trees`」，但该技能不在本仓库，
+  读者去找会扑空。改为「不在本仓库范围」。
+
+### 已知问题
+
+三个技能的 SKILL.md 里还引用着不在本仓库的技能，暂未修改——改 `SKILL.md` 属于技能内容变更，
+按流程必须升版本，而它们当前与已发布版本一致，为一句文案制造版本漂移不划算。等它们下次自然
+升版时一并改：
+
+- `hw-pcb-review` 引用 `hw-review-checklist`（原理图审查，已退场不单独发布）
+- `embedded-production-test` 引用 `embedded-unit-test-gen`（未发布）
+- `embedded-debug-trees` 的 `trees.py` 注释提到 `embedded-fpga-trees`（未发布）
+
 ## [1.5.0] - 2026-11-26
 
 把「什么算发布、什么时候能推上来」从口头约定变成可执行的门禁。此前的状态是：仓库里既有
