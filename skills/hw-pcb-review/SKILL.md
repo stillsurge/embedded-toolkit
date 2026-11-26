@@ -1,11 +1,11 @@
 ---
 name: hw-pcb-review
-description: PCB 布局阶段的自查清单：9 大类（电源布局与去耦电容位置/回流路径与地平面/晶振与时钟走线/高速信号与阻抗/EMC 与 ESD 器件摆放/散热与热设计/接口与连接器/LED 与指示/装配工艺），每项带严重级别（必改/待确认/提示）、检查内容与典型事故。审查对象是 layout 阶段的 PCB，与 hw-review-checklist（原理图审查）互补——原理图对了布局错了照样翻车。
+description: PCB 布局阶段的自查清单：9 大类（电源布局与去耦电容位置/回流路径与地平面/晶振与时钟走线/高速信号与阻抗/EMC 与 ESD 器件摆放/散热与热设计/接口与连接器/LED 与指示/装配工艺），每项带严重级别（必改/待确认/提示）、检查内容与典型事故。审查对象是 layout 阶段的 PCB，与原理图审查互补——原理图对了布局错了照样翻车。
 license: MIT
 compatibility: Python 3.10+，仅标准库，离线运行；不联网、不执行用户代码。
 metadata:
   author: fangcun
-  version: "1.0.0"
+  version: "1.0.1"
   display_name: PCB 布局自查清单
   display_name_en: PCB Layout Review Checklist
   examples_zh:
@@ -18,7 +18,7 @@ metadata:
 
 原理图对了、布局错了照样翻车：去耦电容离芯片 3cm 等于没放、回流路径被分割地平面切断、晶振底下走高速线。本清单管 **layout 阶段**的自查——9 大类，每项 = 检查内容 + 严重级别 + 典型事故。
 
-与 `hw-review-checklist`（原理图审查）互补：**先过原理图清单，再过本清单，两关都过才打板。**
+与原理图审查互补：**先过原理图，再过本清单，两关都过才打板。**
 
 ## 何时使用
 

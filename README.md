@@ -38,7 +38,7 @@ USART1.CR1  地址 0x40013800  偏移 0x00  宽度 32 位  访问 read-write  �
 | **嵌入式时序计算器**<br>`embedded-timing-calc` | 37 个计算器：波特率、PWM、I2C 上拉、SPI 时序等，回显公式与合法性依据 | 1.1.2 |
 | **元器件选型避坑指南**<br>`component-pitfalls` | 渠道分级、四类假芯片识别、五步验真、缺货替代链、220V 与锂电安全红线 | 1.0.0 |
 | **原理图识别器**<br>`schematic-reader` | 解析 Altium / Cadence / KiCad / 立创 / OrCAD / EAGLE / 网表，输出引脚级网表与连通性查询 | 1.0.3 |
-| **PCB 布局自查清单**<br>`hw-pcb-review` | 布局自查打勾与报告生成，覆盖电源、地、USB、晶振等高频出错点 | 1.0.0 |
+| **PCB 布局自查清单**<br>`hw-pcb-review` | 布局自查打勾与报告生成，覆盖电源、地、USB、晶振等高频出错点 | 1.0.1 |
 
 ### 编码与审查
 
@@ -54,15 +54,15 @@ USART1.CR1  地址 0x40013800  偏移 0x00  宽度 32 位  访问 read-write  �
 
 | 技能 | 一句话 | 版本 |
 |---|---|---|
-| **嵌入式故障诊断器**<br>`embedded-debug-trees` | 11 棵树 69 节点，先取证再判断，不直接开药 | 1.4.0 |
+| **嵌入式故障诊断器**<br>`embedded-debug-trees` | 11 棵树 69 节点，先取证再判断，不直接开药 | 1.4.1 |
 | **嵌入式OTA升级工具包**<br>`embedded-ota-toolkit` | OTA / Bootloader 升级链路静态审计，15 条防砖规则，可出报告并入 CI 门禁 | 1.2.0 |
-| **FPGA 仿真工作台**<br>`embedded-fpga-sim` | testbench 模板与仿真判读，覆盖 counter / FIFO / SPI 从机 / CDC 等场景 | 1.0.0 |
+| **FPGA 仿真工作台**<br>`embedded-fpga-sim` | testbench 模板与仿真判读，覆盖 counter / FIFO / SPI 从机 / CDC 等场景 | 1.0.1 |
 
 ### 测试与调参
 
 | 技能 | 一句话 | 版本 |
 |---|---|---|
-| **产品出厂测试方案**<br>`embedded-production-test` | 按板型与规格生成产线测试规范，含电流上下限、节拍、老化温循 | 1.0.0 |
+| **产品出厂测试方案**<br>`embedded-production-test` | 按板型与规格生成产线测试规范，含电流上下限、节拍、老化温循 | 1.0.1 |
 | **电机PID调参器**<br>`motor-pid-tuner` | 电流 / 速度 / 位置环参数计算，含 ZN 整定、离散化、抗饱和、死区补偿 | 1.1.1 |
 
 > 驱动本机工具链的技能（Keil / J-Link / OpenOCD / 串口 / CAN）不在这里，用
@@ -265,7 +265,7 @@ tools/             同步、质量门、发布体检与评测脚本
 tests/             单元测试、合成夹具、触发评测用例
 ```
 
-贡献规则见 [CONTRIBUTING.md](CONTRIBUTING.md)，发版流程见 [docs/release-process.md](docs/release-process.md)，
+贡献规则见 [CONTRIBUTING.md](CONTRIBUTING.md)，维护与发版见 [MAINTAINING.md](MAINTAINING.md)，
 版本变更见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 许可

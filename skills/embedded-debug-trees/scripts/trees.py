@@ -10,7 +10,7 @@
 
 MCU 域 11 棵树覆盖嵌入式软件最高频的故障面
 （跑飞/不通/丢数据/卡死/起不来/CAN/USB/Flash/RTC/LCD/低功耗）；
-FPGA/RTL 排障自 v1.4.0 起独立成库 embedded-fpga-trees，本库不再覆盖。
+FPGA/RTL 排障自 v1.4.0 起不在本库范围（已拆为独立技能在本仓库之外维护）。
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ import os
 import re
 import sys
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(os.path.dirname(HERE), "assets", "trees.json")

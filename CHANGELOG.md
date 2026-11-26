@@ -6,7 +6,7 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
-## [Unreleased]
+## [1.5.1] - 2026-11-26
 
 ### 移除
 
@@ -20,7 +20,26 @@
   - 文档同步改写：R3 只在仓库内部三处比对；新增「往外分发时从仓库打包」，用
     `git archive` 而不是从开发区打包，从源头消除两份代码分叉
 
+### 修复
+
+- **四个技能里指向不存在技能的引用**。这些名字指向的技能都在 v1.4.0 被移出本仓库，
+  读者按图索骥会扑空：
+  - `embedded-fpga-sim`：SKILL.md 整节「与 fpga-trees 的分工」与安装说明里的分工描述
+  - `embedded-production-test`：`SKILL.md` 里「与 embedded-unit-test-gen 互补」
+  - `hw-pcb-review`：`description`、正文、安装说明、`references/pcb-checklist.md` 四处提
+    hw-review-checklist
+  - `embedded-debug-trees`：`trees.py` 注释里的库名
+  改法有两种：改成「不在本技能 / 本仓库范围」，或抽象成能力描述（「与 PC 侧单测互补」）。
+  四个技能各升一个 patch。
+
 ### 新增
+
+- **`MAINTAINING.md`**：维护手册，取代 `docs/release-process.md`（内容已合并，原文件删除）。
+  含仓库定位与边界、两天里从 5 个技能收拾到 15 个的履历与三个转折、目录结构、六条硬规则、
+  七类操作手册、三道闸、按主题分类的踩坑记录、四份检查清单、定期体检节奏、已知问题、命令速查。
+  动机很直接：这些约定此前散在 README、CONTRIBUTING、release-process 三处，谁也没完整看过，
+  于是同一个错反复踩——判定依据换了四次才定、门禁拿外部状态当判据、About 描述停在五个技能。
+
 
 - **仓库社交预览图**：`tools/make_social_preview.py` 生成 1280×640 的 `.github/social-preview.png`，
   技能数量或定位文案变了重跑即可。图上的命令输出取自 `lookup.py lookup USART1.CR1 --demo` 的

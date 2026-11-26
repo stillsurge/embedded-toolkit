@@ -10,7 +10,7 @@
 ## 改动类型
 
 - [ ] 只改治理文件（`docs/` / `README` / `CHANGELOG` / `.github/` / `tools/` / `release/`），不动技能内容
-- [ ] 改了技能内容（必须走完发布流程，见 [docs/release-process.md](../docs/release-process.md)）
+- [ ] 改了技能内容（必须走完发布流程，见 [MAINTAINING.md](../MAINTAINING.md)）
 
 ## 验证
 

@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.10+，仅标准库，离线运行；不联网、不执行用户代码。
 metadata:
   author: fangcun
-  version: "1.4.0"
+  version: "1.4.1"
   display_name: 嵌入式故障诊断器
 ---
 

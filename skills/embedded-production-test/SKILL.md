@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.10+，仅标准库，离线运行；不联网、不执行用户代码。
 metadata:
   author: fangcun
-  version: "1.0.0"
+  version: "1.0.1"
   display_name: 产品出厂测试方案
   display_name_en: Product Factory Test Plan
   examples_zh:
@@ -17,7 +17,7 @@ metadata:
 # 产品出厂测试方案（embedded-production-test）
 
 产线测试规范的**基础骨架**：L1→L4 四层模板，每项带操作方法与判定标准（判定值按产品规格填空）。
-与 `embedded-unit-test-gen`（PC 侧单测）互补：单测管纯函数，本技能管**板级与量产**。
+与 PC 侧单元测试互补但覆盖面不同：单测管纯函数，本技能管**板级与量产**。
 
 ## 何时使用
 

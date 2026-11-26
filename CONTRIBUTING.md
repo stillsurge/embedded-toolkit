@@ -41,7 +41,7 @@ CI 在 ubuntu / windows / macOS × Python 3.10 / 3.12 / 3.13 上跑前三条，�
 哪一版（`version`）。它不记录任何外部渠道的版本号——本仓库是唯一真源，版本以 `SKILL.md` 为准。
 
 新增技能时漏登记，`check_repo.py` 会直接报「未登记」并失败。完整流程、版本号规则与发版命令见
-[docs/release-process.md](docs/release-process.md)。
+[MAINTAINING.md](MAINTAINING.md)。
 
 ## 质量门检查什么
 
@@ -84,7 +84,7 @@ CI 在 ubuntu / windows / macOS × Python 3.10 / 3.12 / 3.13 上跑前三条，�
 8. 需要第三方包时，在技能根建 `requirements.txt`，用 `包名  # import: 模块名` 标注
    import 名不一致的情况（如 `PyMuPDF  # import: fitz`）。
 9. `python tools/check_release.py` 通过后，打 tag 发版。细节见
-   [docs/release-process.md](docs/release-process.md)。
+   [MAINTAINING.md](MAINTAINING.md)。
 
 ## README 写什么、不写什么
 
@@ -108,7 +108,7 @@ README 的读者是**来找技能用的人**，不是维护者。一条信息该
 - 没有信息量的规划："按阶段门推进"+"两个名词"，等于没说
 - 未实测的示例输出
 
-前两类放 `CONTRIBUTING.md` 与 `docs/release-process.md`，那是给维护者看的。README 里最多留一行链接。
+前两类放 `CONTRIBUTING.md` 与 `MAINTAINING.md`，那是给维护者看的。README 里最多留一行链接。
 
 ## 提交信息
 

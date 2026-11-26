@@ -35,7 +35,7 @@
     },
     {
       "name": "embedded-debug-trees",
-      "version": "1.4.0",
+      "version": "1.4.1",
       "releasedAt": "2026-11-13"
     },
     {
@@ -45,7 +45,7 @@
     },
     {
       "name": "embedded-fpga-sim",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "releasedAt": "2026-11-06"
     },
     {
@@ -60,7 +60,7 @@
     },
     {
       "name": "embedded-production-test",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "releasedAt": "2026-11-06"
     },
     {
@@ -80,7 +80,7 @@
     },
     {
       "name": "hw-pcb-review",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "releasedAt": "2026-11-06"
     },
     {

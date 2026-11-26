@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.10+，仅标准库；仿真需本机安装 Icarus Verilog（iverilog）；不联网、不执行用户代码。
 metadata:
   author: fangcun
-  version: "1.0.0"
+  version: "1.0.1"
   display_name: FPGA 仿真工作台
   display_name_en: FPGA Simulation Workbench
   examples_zh:
@@ -63,9 +63,8 @@ iverilog -g2012 -o sim.vvp templates/tb_cdc.v && vvp sim.vvp   # 自带同步器
 | SPI 收发 | 采样沿对齐、回环逐位断言（MSB 先出）、全 0/全 1 边界数据 |
 | UART 收发 | 起始位半位确认（抗毛刺）、中点采样、LSB 先出、停止位校验（帧错误丢弃）、回环逐字节断言、波特率误差 ≤±2% |
 
-## 与 fpga-trees 的分工
+## 边界
 
-- `embedded-fpga-sim`（本技能）：**综合之前**——功能对不对
-- `embedded-fpga-trees`：**综合之后**——排障决策树/日志解析/时序报告/约束审查
+本技能只管**综合之前**——功能对不对。
 
-两个都装 = 仿真到时序的全流程；只装本技能 = 管好"烧板子之前"。
+综合之后的事（告警排查、时序收敛、约束审查）不在本技能范围，也不在本仓库范围。

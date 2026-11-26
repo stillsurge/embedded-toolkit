@@ -31,7 +31,7 @@
 
 ## 定位边界
 
-管**综合之前的功能验证**；综合告警（latch/位宽截断）与时序收敛走 `embedded-fpga-trees`（两 skill 分工：仿真=功能对不对，trees=综合后哪里翻车）；只覆盖 Verilog + Gowin（Xilinx/Altera 不在范围内）。
+管**综合之前的功能验证**；综合告警（latch/位宽截断）与时序收敛不在本技能范围；只覆盖 Verilog + Gowin（Xilinx/Altera 不在范围内）。
 
 ## 复核方式
 
