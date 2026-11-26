@@ -17,7 +17,7 @@ import os
 import re
 import sys
 
-__version__ = "1.2.1"
+__version__ = "1.2.2"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(os.path.dirname(HERE), "assets", "pitfalls.json")
@@ -276,7 +276,7 @@ def main(argv=None):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(
-        prog="pitfalls.py", description="嵌入式外设配置坑清单检索器",
+        prog="pitfalls.py", description="嵌入式外设配置巡检器",
         epilog="""示例:
   python pitfalls.py search "I2C 上拉"       按外设/症状检索坑位
   python pitfalls.py search "SPI CPOL"       检索特定配置项

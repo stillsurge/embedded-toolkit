@@ -5,11 +5,11 @@ license: MIT
 compatibility: Python 3.10+，仅标准库，离线运行；不联网、不执行用户代码。
 metadata:
   author: fangcun
-  version: "1.2.1"
+  version: "1.2.2"
   display_name: 嵌入式外设配置巡检器
 ---
 
-# 嵌入式外设配置坑清单
+# 嵌入式外设配置巡检器
 
 给 AI 编程助手用的配置避坑知识库：二十五类外设的实战坑位，**每个坑=症状+对策**，配置类问题先对清单再回答，命中直接给解法不从头推导。
 

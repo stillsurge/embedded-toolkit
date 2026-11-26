@@ -1,8 +1,31 @@
-# 寄存器核验器（embedded-register-verify）
+# 嵌入式寄存器写入审计器（embedded-register-verify）
 
 **作用**：核验 C/C++ 代码里的寄存器写入是否与芯片 SVD 一致。输出分"报 / 未判定 / 通过"三桶，退出码 1 表示检出问题。
 
-当前版本 **1.16.2**。
+当前版本 **1.17.0**。
+
+## 命令
+
+**零配置（不需要 SVD、芯片或代码文件）：**
+
+```bash
+python scripts/verify.py demo      # 用内置演示芯片 + 内置样例跑一遍 E01–E13，退出码 0 = 工具正常
+python scripts/verify.py doctor    # 环境体检：本机有哪些 SVD 来源、怎么上手
+python scripts/verify.py rules     # 列出核验规则
+```
+
+**核验真实代码（需要芯片 SVD）：**
+
+```bash
+python scripts/verify.py check main.c --chip STM32G431                      # 按芯片名找本机 CMSIS-Pack
+python scripts/verify.py check src/ --svd ./STM32G431xx.svd --checklist     # 直接给 SVD 文件
+python scripts/verify.py check --patch changes.diff --chip STM32G431        # 只验补丁新增行
+python scripts/verify.py check main.c --chip ESP32-S3 --headers "$IDF_PATH/components/soc/esp32s3/include/soc"
+```
+
+`--checklist` 生成逐项复查清单；`--format json` 给 Agent 解析；`--explain` 把寄存器定义内联进报告。
+补丁模式只核验新增行，但文件级检查（E06/E07/E11）会用磁盘上的完整文件做上下文，未改动的时钟
+使能可见，不会误报。
 
 ## 检出规则
 

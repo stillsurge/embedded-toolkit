@@ -3,7 +3,7 @@
 mcu-debug-mcp · C 驱动测试运行器（run_c_tests.py）
 
 本文件由上游 mcu-debug-mcp/tests/ 随包复制，只改驱动路径前缀
-（src/mcu_debug_mcp/drivers -> assets/drivers），判定逻辑一字未动。
+（上游 drivers 目录 → 本包 assets/ 平铺 <驱动名>__<文件名>，判定逻辑一字未动）。
 
 Makefile.logic 的等价物，但不需要 make，且**自动处理 Windows + msys2 的 cc1 PATH 坑**。
 

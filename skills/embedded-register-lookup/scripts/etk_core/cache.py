@@ -34,13 +34,25 @@ ENV_CACHE_DIR = "ETK_CACHE_DIR"
 
 
 def cache_dir():
+    """缓存目录：ETK_CACHE_DIR > %LOCALAPPDATA%\\etk\\cache > ~/.cache/etk。
+
+    注意：Windows 上若 USERPROFILE / HOMEDRIVE+HOMEPATH 都没有，
+    os.path.expanduser("~") 会原样返回 "~"，从而在当前工作目录里创建
+    字面量 "~\\.cache\\etk" 目录——污染用户的项目目录。
+    这里对无法展开的 "~" 做兜底：改用系统临时目录。
+    """
     custom = os.environ.get(ENV_CACHE_DIR)
     if custom:
         return os.path.abspath(os.path.expanduser(custom))
     local = os.environ.get("LOCALAPPDATA")
     if os.name == "nt" and local:
         return os.path.join(local, "etk", "cache")
-    return os.path.join(os.path.expanduser("~"), ".cache", "etk")
+    home = os.path.expanduser("~")
+    if not home or home == "~":
+        # 展开失败（无 home 目录）：退回临时目录，绝不在工作目录里造 "~" 目录
+        import tempfile
+        return os.path.join(tempfile.gettempdir(), "etk", "cache")
+    return os.path.join(home, ".cache", "etk")
 
 
 def _cache_file(path):

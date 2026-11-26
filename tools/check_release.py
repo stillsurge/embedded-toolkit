@@ -187,6 +187,35 @@ def check_docs():
         page = os.path.join(ROOT, "docs", "skills", "%s.md" % name)
         if not os.path.isfile(page):
             issues.append("docs/skills/%s.md 缺失（每个技能要有一页，写清作用/命令/实测记录/边界）" % name)
+    issues += check_readme_versions()
+    return issues
+
+
+def check_readme_versions():
+    """README 技能表的版本列必须与 SKILL.md 的 metadata.version 一致。
+
+    这张表是用户判断"我装的是不是最新"的唯一依据，手工维护必然漂移——
+    升了技能忘了改表，用户就会以为仓库是旧版。
+    """
+    issues = []
+    readme = os.path.join(ROOT, "README.md")
+    if not os.path.isfile(readme):
+        return ["README.md 不存在"]
+    with open(readme, encoding="utf-8") as fh:
+        text = fh.read()
+    rows = re.findall(r"`([a-z0-9][a-z0-9-]*)`[^\n|]*\|[^\n|]*\|\s*(\d+\.\d+\.\d+)\s*\|", text)
+    for name, ver in rows:
+        md = os.path.join(ROOT, "skills", name, "SKILL.md")
+        if not os.path.isfile(md):
+            continue
+        with open(md, encoding="utf-8") as fh:
+            try:
+                meta, _ = check_repo.parse_frontmatter(fh.read())
+            except ValueError:
+                continue
+        real = (meta.get("metadata") or {}).get("version")
+        if real and real != ver:
+            issues.append("README.md 技能表里 %s 写的是 %s，SKILL.md 是 %s" % (name, ver, real))
     return issues
 
 

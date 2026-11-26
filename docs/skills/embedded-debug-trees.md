@@ -1,10 +1,10 @@
-# 排障决策树（embedded-debug-trees）
+# 嵌入式故障诊断器（embedded-debug-trees）
 
-**作用**：按症状定位 MCU / FPGA 故障根因。每一步先给证据采集动作（回读寄存器、示波器、故障快照）再下判断，避免"直接开药"。
+**作用**：按症状定位 MCU 固件与硬件故障根因。每一步先给证据采集动作（回读寄存器、示波器、故障快照）再下判断，避免"直接开药"。
 
-当前版本 **1.3.1**：十二棵树、77 个节点。
+当前版本 **1.4.0**：十一棵树、69 个节点。
 
-## 十二棵树
+## 十一棵树
 
 | 树 | 覆盖内容 |
 |---|---|
@@ -19,7 +19,6 @@
 | 片上 Flash | 写不进、等待周期、读保护 |
 | RTC | 时钟源、写保护、首次上电 |
 | LCD | 背光、花屏、触摸 |
-| FPGA / RTL | 综合后行为异常、资源、工具链、跨时钟域、时序违例 |
 
 ## 命令
 
@@ -39,4 +38,4 @@
 
 ## 边界
 
-不用于：寄存器事实查询（用 `embedded-register-lookup`）、寄存器写入核验（用 `embedded-register-verify`）、配置语义坑（用 `embedded-peripheral-pitfalls`）、电机行为故障（电机控制域）。
+不用于：寄存器事实查询（用 `embedded-register-lookup`）、寄存器写入核验（用 `embedded-register-verify`）、配置语义坑（用 `embedded-peripheral-pitfalls`）、电机行为故障（电机控制域）、FPGA/RTL 排障（不在本库范围）。

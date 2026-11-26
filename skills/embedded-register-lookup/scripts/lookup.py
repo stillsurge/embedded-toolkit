@@ -26,7 +26,7 @@ from etk_core.output import envelope  # noqa: E402
 from etk_core.values import parse_number  # noqa: E402
 
 TOOL = "embedded-register-lookup"
-__version__ = "1.11.1"
+__version__ = "1.11.3"
 MAX_WARNINGS_SHOWN = 20
 DEMO_SVD = os.path.normpath(os.path.join(_HERE, os.pardir, "assets", "demo.svd"))
 
@@ -44,7 +44,7 @@ def build_parser():
 
     parser = argparse.ArgumentParser(
         prog="lookup.py",
-        description="查询 CMSIS-SVD 中的外设、寄存器与位域。",
+        description="嵌入式寄存器查询器：查询 CMSIS-SVD 中的外设、寄存器与位域。",
         epilog=(
             "示例：\n"
             "  lookup.py lookup USART1.CR1.UE --chip STM32G431\n"

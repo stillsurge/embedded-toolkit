@@ -9,7 +9,7 @@ import math
 import os
 import sys
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TH = os.path.join(os.path.dirname(HERE), "assets", "thresholds.json")

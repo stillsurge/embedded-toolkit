@@ -5,11 +5,11 @@ license: MIT
 compatibility: Python 3.10+，仅标准库，离线运行；不联网、不执行用户代码。
 metadata:
   author: fangcun
-  version: "1.11.1"
+  version: "1.11.3"
   display_name: 嵌入式寄存器查询器
 ---
 
-# 寄存器百事通
+# 嵌入式寄存器查询器
 
 按芯片的 SVD 文件查外设、寄存器、位域和复位值，做地址反查与寄存器值解码。每条结论带来源（文件、设备、版本）和证据标签。
 

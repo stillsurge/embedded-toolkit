@@ -5,6 +5,7 @@
 退出码：0 = 没有"报"；1 = 检出问题或工具出错（errors 为空时表示检出问题）。
 
 示例：
+  python scripts/verify.py demo
   python scripts/verify.py check main.c --chip STM32G431
   python scripts/verify.py check src/ --demo --checklist
   python scripts/verify.py check --patch changes.diff --chip STM32G431
@@ -31,7 +32,7 @@ from etk_core.errors import E_INPUT_INVALID, E_INTERNAL, E_SVD_NOT_FOUND, EtkErr
 from etk_core.output import envelope  # noqa: E402
 
 TOOL = "embedded-register-verify"
-__version__ = "1.16.2"
+__version__ = "1.17.0"
 DEMO_SVD = os.path.normpath(os.path.join(_HERE, os.pardir, "assets", "demo.svd"))
 MAX_FILES = 200
 MAX_WARNINGS_SHOWN = 20
@@ -51,18 +52,24 @@ def build_parser():
 
     parser = argparse.ArgumentParser(
         prog="verify.py",
-        description="核验 C/C++ 代码中的寄存器写入是否与芯片 SVD 一致（只做词法分析，不执行代码）。",
+        description="嵌入式寄存器写入审计器：核验 C/C++ 代码中的寄存器写入是否与芯片 SVD 一致（只做词法分析，不执行代码）。",
         epilog=(
             "示例：\n"
-            "  verify.py check main.c --chip STM32G431\n"
-            "  verify.py check src/ --demo --checklist\n"
+            "  verify.py demo                          # 零配置自检（内置演示芯片 + 内置样例）\n"
+            "  verify.py doctor                        # 环境体检：SVD 来源与上手建议\n"
+            "  verify.py rules                         # 列出核验规则 E01–E13\n"
+            "  verify.py check main.c --chip STM32G431 # 核验真实代码（需要本机 CMSIS-Pack）\n"
+            "  verify.py check src/ --demo --checklist  # 用内置演示芯片核验整个目录\n"
             "  verify.py check --patch changes.diff --chip STM32G431\n"
-            "  verify.py rules\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--version", action="version", version="%(prog)s " + __version__)
-    sub = parser.add_subparsers(dest="command", required=True)
+    # 顶层也接受 --format / --out，便于不带子命令时直接指定输出格式
+    parser.add_argument("--format", choices=("text", "json"), default="text",
+                        help="输出格式（默认 text）")
+    parser.add_argument("--out", metavar="FILE", help="把输出写入文件，而不是标准输出")
+    sub = parser.add_subparsers(dest="command")
 
     p = sub.add_parser("check", parents=[common], help="核验文件、目录或补丁中的寄存器写入")
     p.add_argument("paths", nargs="*", metavar="路径",
@@ -78,6 +85,8 @@ def build_parser():
     p.add_argument("--limit", type=int, default=200, help="每个文件最多列出条数（默认 200）")
 
     sub.add_parser("rules", parents=[io], help="列出核验规则 E01–E13")
+    sub.add_parser("demo", parents=[io], help="零配置自检：用内置演示芯片与内置样例跑一遍核验（无需任何参数）")
+    sub.add_parser("doctor", parents=[io], help="环境体检：报告 SVD 来源与上手建议（不需要 SVD 也能跑）")
     return parser
 
 
@@ -287,10 +296,125 @@ def _patch_sources(text):
 
 # ---------- 运行 ----------
 
+def _run_demo(args):
+    """零配置自检：用内置演示芯片 + 内置样例代码跑一遍核验，断言规则确实能命中。
+
+    这是本技能的"零配置试用"入口：不需要用户提供任何文件、SVD 或芯片名。
+    退出码 0 = 自检通过（工具本身工作正常）；1 = 自检失败（工具不可用）。
+    """
+    if not os.path.isfile(DEMO_SVD):
+        raise EtkError(E_SVD_NOT_FOUND, "内置演示数据缺失：%s" % DEMO_SVD,
+                       hint="安装不完整，请重新安装技能包。")
+    demo_case = os.path.normpath(os.path.join(_HERE, os.pardir, "examples", "verify_demo.c"))
+    if not os.path.isfile(demo_case):
+        raise EtkError(E_INPUT_INVALID, "内置自检用例缺失：%s" % demo_case,
+                       hint="安装不完整，请重新安装技能包。")
+
+    device = load_device_cached(DEMO_SVD)
+    with open(demo_case, encoding="utf-8", errors="replace") as fh:
+        text = fh.read()
+    verifier = crules.Verifier(device, extra_defines={}, clock_check=True, limit=200)
+    result = verifier.check_file("verify_demo.c", text)
+
+    counts = result.get("counts") or {}
+    report = counts.get("report") or 0
+    passed = counts.get("passed") or 0
+    writes = counts.get("writes") or 0
+
+    # 自检判据：样例文件里预埋了 3 处确定的问题（E03×1、E10×2）。
+    # 能检出这些问题 + 有通过项，说明规则引擎与 SVD 读取都正常。
+    problems = []
+    if report < 3:
+        problems.append("应检出至少 3 处预埋问题（E03×1、E10×2），实际 %d 处" % report)
+    if passed < 1:
+        problems.append("应至少通过 1 处合法写入，实际 %d 处" % passed)
+    if writes < 1:
+        problems.append("未识别到任何寄存器写入（解析器可能失效）")
+
+    buckets = {}
+    for finding in result.get("findings") or []:
+        buckets[finding.get("bucket")] = buckets.get(finding.get("bucket"), 0) + 1
+
+    summary = {
+        "kind": "demo",
+        "ok": not problems,
+        # 只留文件名，不带本机绝对路径（发布包内不得出现本机路径）
+        "source": {"file": os.path.basename(DEMO_SVD), "device": device.name, "version": device.version},
+        "case": "examples/verify_demo.c",
+        "counts": {"writes": writes, "report": report, "passed": passed,
+                   "undetermined": counts.get("undetermined") or 0},
+        "buckets": buckets,
+        "problems": problems,
+    }
+    if problems:
+        warnings = []
+        errors = [{
+            "code": E_INTERNAL,
+            "message": "自检未通过：%s" % "；".join(problems),
+            "hint": "内置演示数据或规则引擎可能损坏，请重新安装技能包；"
+                    "如问题持续请附 --format json 的输出反馈。",
+            "details": {"problems": problems},
+        }]
+    else:
+        warnings = []
+        errors = []
+    return [summary], warnings, errors
+
+
+def _run_doctor(args):
+    """环境体检：不依赖任何 SVD 也能跑，报告 SVD 来源与上手建议。"""
+    lines = ["SVD 来源："]
+    found = []
+    if os.path.isfile(DEMO_SVD):
+        found.append("内置演示数据：%s（设备 ETK-DEMO，--demo 可直接用）" % os.path.basename(DEMO_SVD))
+    try:
+        path, selected_by, _notes = find_svd(None, None, args.project_dir)
+        # 只显示文件名与来源类型；来源描述里可能含本机绝对路径，剥掉
+        source_kind = re.sub(r"[A-Za-z]:\\[^\s，。；]*", "<本机路径>", selected_by)
+        source_kind = re.sub(r"[A-Za-z]:/[^\s，。；]*", "<本机路径>", source_kind)
+        found.append("自动发现：%s（%s）" % (os.path.basename(path), source_kind))
+    except EtkError:
+        pass
+    if not found:
+        lines.append("  未找到任何 .svd 文件")
+    else:
+        lines.extend("  - " + item for item in found)
+    lines.append("")
+    lines.append("上手建议：")
+    lines.append("  - 零配置试用：verify.py demo（内置演示芯片 + 内置样例，自检 E01–E13 规则）")
+    lines.append("  - 查看规则：verify.py rules")
+    lines.append("  - 环境体检：verify.py doctor")
+    lines.append("  - 核验真实代码：verify.py check main.c --chip STM32G431（需要本机装了 CMSIS-Pack）")
+    lines.append("  - 指定 SVD：verify.py check main.c --svd /path/to/chip.svd")
+    return [{"kind": "doctor", "lines": lines}], [], []
+
+
 def _run(args):
+    if args.command is None:
+        # 不带子命令时给出用法速览并正常退出（退出码 0），
+        # 便于在无参数场景下直接运行本工具确认它可用。
+        return [{
+            "kind": "usage",
+            "lines": [
+                "嵌入式寄存器写入审计器：核验 C/C++ 代码里的寄存器写入是否与芯片 SVD 一致（不执行代码）。",
+                "",
+                "常用命令：",
+                "  verify.py demo      零配置自检（内置演示芯片 + 内置样例，退出码 0 = 工具正常）",
+                "  verify.py doctor    环境体检：SVD 来源与上手建议",
+                "  verify.py rules     列出核验规则 E01–E13",
+                "  verify.py check <文件或目录> --chip <芯片名>   核验真实代码",
+                "",
+                "用 verify.py --help 查看完整参数。",
+            ],
+        }], [], []
     if args.command == "rules":
         return [crules.rule_table()], [], []
-    if args.limit < 1:
+    if args.command == "demo":
+        return _run_demo(args)
+    if args.command == "doctor":
+        return _run_doctor(args)
+    # 以下参数只属于 check 子命令；到这一步必然是 check
+    if getattr(args, "limit", 1) < 1:
         raise EtkError(E_INPUT_INVALID, "--limit 必须大于 0")
     if args.patch and not os.path.isfile(args.patch):
         raise EtkError(E_INPUT_INVALID, "--patch 指定的文件不存在：%s" % args.patch)
@@ -603,6 +727,23 @@ def _render_verify(res):
     return lines
 
 
+def _render_demo(res):
+    src = res.get("source") or {}
+    counts = res.get("counts") or {}
+    lines = ["[自检] 内置演示芯片 %s（版本 %s）：%s" % (
+        src.get("device"), src.get("version"), src.get("file")),
+        "  用例：%s" % res.get("case"),
+        "  解析：%d 处寄存器写入 → 报 %d、未判定 %d、通过 %d" % (
+            counts.get("writes") or 0, counts.get("report") or 0,
+            counts.get("undetermined") or 0, counts.get("passed") or 0)]
+    for problem in res.get("problems") or []:
+        lines.append("  ✗ %s" % problem)
+    if res.get("ok"):
+        lines.append("  自检通过：规则引擎、SVD 读取、样例解析均正常。")
+        lines.append("  下一步：verify.py check <你的 .c 文件> --chip <芯片名>")
+    return lines
+
+
 def render_text(env):
     lines = []
     for err in env["errors"]:
@@ -621,6 +762,12 @@ def render_text(env):
             lines.extend(_render_verify(res))
         elif res["kind"] == "rules":
             lines.extend(_render_rules(res))
+        elif res["kind"] == "demo":
+            lines.extend(_render_demo(res))
+        elif res["kind"] == "doctor":
+            lines.extend(res.get("lines") or [])
+        elif res["kind"] == "usage":
+            lines.extend(res.get("lines") or [])
         else:
             lines.append(json.dumps(res, ensure_ascii=False))
     files = [r for r in env["results"] if r["kind"] == "verify"]
@@ -646,6 +793,13 @@ def main(argv=None):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="replace")
     args = build_parser().parse_args(argv)
+    # format / out / project-dir 定义在子解析器上；不带子命令时给默认值（避免 AttributeError）
+    if not hasattr(args, "format"):
+        args.format = "text"
+    if not hasattr(args, "out"):
+        args.out = None
+    if not hasattr(args, "project_dir"):
+        args.project_dir = None
     try:
         results, warnings, errors = _run(args)
         env = envelope(TOOL, __version__, results=results, warnings=warnings, errors=errors)
@@ -662,6 +816,9 @@ def main(argv=None):
     _emit(text, args.out)
     if not env["ok"]:
         return 1
+    if args.command == "demo":
+        # 自检命令：退出码只看自检本身是否通过，不看"报"桶（样例本来就有 3 处预埋问题）
+        return 0 if all(r.get("ok") for r in env["results"] if r.get("kind") == "demo") else 1
     if args.command == "check":
         for res in env["results"]:
             counts = res.get("counts") or {}

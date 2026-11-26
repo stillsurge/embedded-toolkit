@@ -14,14 +14,14 @@
 
 CC          = gcc
 MINGW_BIN   ?= /d/tools/msys64/mingw64/bin
-CFLAGS      = -Wall -Wextra -O1 -I stub -I ../assets/drivers/dht11 -I ../assets/drivers/hcsr04 \
-              -I ../assets/drivers/ds18b20 -I ../assets/drivers/mpu6050 -I ../assets/drivers/esp8266at -I ../assets/drivers/ssd1306 \
-              -I ../assets/drivers/servo_sg90 -I ../assets/drivers/stepper_28byj48 -I ../assets/drivers/hc05
-DRIVERS = ../assets/drivers/dht11/dht11.c ../assets/drivers/hcsr04/hcsr04.c \
-          ../assets/drivers/ds18b20/ds18b20.c ../assets/drivers/mpu6050/mpu6050.c \
-          ../assets/drivers/esp8266at/esp8266at.c ../assets/drivers/ssd1306/ssd1306.c \
-          ../assets/drivers/servo_sg90/servo_sg90.c ../assets/drivers/stepper_28byj48/stepper_28byj48.c \
-          ../assets/drivers/hc05/hc05.c
+CFLAGS      = -Wall -Wextra -O1 -I stub -I ../assets -I ../assets \
+              -I ../assets -I ../assets -I ../assets -I ../assets \
+              -I ../assets -I ../assets -I ../assets
+DRIVERS = ../assets/dht11__dht11.c ../assets/hcsr04__hcsr04.c \
+          ../assets/ds18b20__ds18b20.c ../assets/mpu6050__mpu6050.c \
+          ../assets/esp8266at__esp8266at.c ../assets/ssd1306__ssd1306.c \
+          ../assets/servo_sg90__servo_sg90.c ../assets/stepper_28byj48__stepper_28byj48.c \
+          ../assets/hc05__hc05.c
 
 # mingw64/bin 不存在时（如 Linux）不影响：PATH 前置一个不存在的目录无害
 export PATH := $(MINGW_BIN):$(PATH)
@@ -35,7 +35,7 @@ test_driver_logic.exe: test_driver_logic.c $(DRIVERS)
 # 逐款编译，验证零警告目标（CI 可用）
 warncheck:
 	@for d in dht11 hcsr04 ds18b20 mpu6050 esp8266at ssd1306 servo_sg90 stepper_28byj48 hc05; do \
-		out=$$($(CC) -c $(CFLAGS) -I ../assets/drivers/$$d ../assets/drivers/$$d/$$d.c -o /tmp/$$d.o 2>&1); \
+		out=$$($(CC) -c $(CFLAGS) -I ../assets ../assets/$$d__$$d.c -o /tmp/$$d.o 2>&1); \
 		if [ -n "$$out" ]; then echo "$$d: 有警告"; echo "$$out"; else echo "$$d: OK 零警告"; fi; \
 	done
 

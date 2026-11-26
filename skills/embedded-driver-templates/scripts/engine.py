@@ -13,24 +13,34 @@ import json
 import os
 import re
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DRIVERS_DIR = os.path.join(os.path.dirname(HERE), "assets", "drivers")
-
-# ===== 以下函数自 mcu-debug-mcp core.py 原样抽取（S2 同源）=====
+ASSETS_DIR = os.path.join(os.path.dirname(HERE), "assets")
+# ★ 平台两级目录限制（2026-10-28 驳回实证：Skill 包仅支持 根/二级/文件）：
+#   驱动文件从 assets/drivers/<名>/<文件> 压平为 assets/<名>__<文件>（双下划线分隔），
+#   引擎按前缀聚合，对 driver_list/get/wiring/api 的输出格式零影响。
+_SEP = "__"
 
 def _driver_dirs():
-    """层叠列举驱动库 → [(名, 路径)]（同名以外层为准）。"""
-    if not os.path.isdir(DRIVERS_DIR):
+    """列举驱动库 → [(名, 前缀路径)]。压平后"目录"= assets/<名>__* 文件组。"""
+    if not os.path.isdir(ASSETS_DIR):
         return []
-    return [(d, os.path.join(DRIVERS_DIR, d))
-            for d in sorted(os.listdir(DRIVERS_DIR))
-            if os.path.isdir(os.path.join(DRIVERS_DIR, d))]
+    names = []
+    for f in sorted(os.listdir(ASSETS_DIR)):
+        if _SEP in f and os.path.isfile(os.path.join(ASSETS_DIR, f)):
+            n = f.split(_SEP, 1)[0]
+            if n and n not in names:
+                names.append(n)
+    return [(n, os.path.join(ASSETS_DIR, n + _SEP)) for n in names]
 
 
 def _driver_dir(name):
-    """按名解析驱动目录（大小写不敏感）；没有返回 None。"""
+    """按名解析驱动前缀路径（大小写不敏感）；没有返回 None。
+
+    返回值是 glob 前缀（assets/<名>__），不是真实目录——调用方全部走
+    os.path.join(ddir, ...) + glob/exists，前缀路径同样成立。
+    """
     key = (name or "").strip().lower()
     if not key:
         return None
@@ -42,7 +52,7 @@ def _driver_dir(name):
 
 def _driver_meta(name):
     ddir = _driver_dir(name)
-    meta_path = os.path.join(ddir, "meta.json") if ddir else ""
+    meta_path = (glob.glob(glob.escape(ddir) + "meta.json") or [""])[0] if ddir else ""
     if meta_path and os.path.exists(meta_path):
         with open(meta_path, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -77,7 +87,7 @@ def driver_get(name):
     if meta:
         parts.append("【验证记录】%s" % json.dumps(meta, ensure_ascii=False))
     for pattern in ("*.md", "*.h", "*.c"):
-        for f in sorted(glob.glob(os.path.join(ddir, pattern))):
+        for f in sorted(glob.glob(glob.escape(ddir) + pattern)):
             with open(f, "r", encoding="utf-8") as fh:
                 parts.append("===== %s =====\n%s" % (os.path.basename(f), fh.read()))
     if not parts:
@@ -96,7 +106,7 @@ def driver_wiring(name):
     ddir = _driver_dir(name)
     if not ddir:
         return "没有名为 %s 的驱动。可用：%s" % (name, ", ".join(n for n, _p in dirs))
-    path = os.path.join(ddir, "wiring.md")
+    path = (glob.glob(glob.escape(ddir) + "wiring.md") or [""])[0]
     if not os.path.exists(path):
         return "驱动 %s 暂无 wiring.md。" % name
     with open(path, "r", encoding="utf-8") as f:
@@ -127,7 +137,7 @@ def _port_source(name):
     if not ddir:
         return ""
     texts = []
-    for f in sorted(glob.glob(os.path.join(ddir, "*_port.h"))):
+    for f in sorted(glob.glob(glob.escape(ddir) + "*_port.h")):
         try:
             with open(f, "r", encoding="utf-8") as fh:
                 texts.append(fh.read())

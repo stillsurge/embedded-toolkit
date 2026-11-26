@@ -1,8 +1,8 @@
-# 寄存器百事通（embedded-register-lookup）
+# 嵌入式寄存器查询器（embedded-register-lookup）
 
 **作用**：基于芯片的 CMSIS-SVD 查外设、寄存器、位域、复位值、中断号与 NVIC 使能位。每条结论带 `source`（文件、设备、版本）与 `label`（证据等级）。
 
-当前版本 **1.11.1**。
+当前版本 **1.11.3**。
 
 ## 能力清单
 

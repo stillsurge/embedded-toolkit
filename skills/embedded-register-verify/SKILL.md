@@ -2,17 +2,30 @@
 name: embedded-register-verify
 description: 核验 C 代码里的 MCU 寄存器写入是否与芯片 SVD 一致：外设、寄存器、位域是否存在；值是否超位宽；枚举是否合法；是否写只读位；是否访问前未开时钟；是否硬编码地址。按"报 / 未判定 / 通过"分桶输出，并可生成复查清单。Use when reviewing embedded C init code, register writes, or AI-generated firmware registers; verify register writes against a chip SVD. 关键词：寄存器核验、寄存器检查、AI 生成代码、驱动复查、初始化代码检查、对拍、register check、verify register writes。不用于：HAL/LL 结构体配置语义（会进未判定）、外挂器件命令（Flash、传感器）、时序正确性、通用代码风格、寄存器事实查询（用 embedded-register-lookup）。
 license: MIT
-compatibility: Python 3.10+，仅标准库，离线运行；不联网、不执行用户代码。
+compatibility: Python 3.10+，仅标准库，离线运行；不联网、不执行用户代码。需要目标芯片的 CMSIS SVD（查找规则同 embedded-register-lookup）；没有 SVD 时用 --demo 走内置演示芯片零配置试用。
 metadata:
   author: fangcun
-  version: "1.16.2"
+  version: "1.17.0"
   display_name: 嵌入式寄存器写入审计器
 ---
 
-# 寄存器核验器
+# 嵌入式寄存器写入审计器
 
 把一段 C 代码里的寄存器写入逐条对照芯片 SVD 核验：**这条写入合法吗？**每条结论带出处与证据标签。
 只做词法分析：**不执行用户代码、不 eval**；判定不确定时进"未判定"，宁可漏报不误报。
+
+## 上手（先跑这条，无需任何准备）
+
+```bash
+python scripts/verify.py demo
+```
+
+`demo` 用**内置演示芯片 + 内置样例**跑一遍 E01–E13 自检：不需要 SVD、不需要芯片、
+不需要用户代码。输出会告诉你解析到多少处写入、检出多少问题，以及工具本身是否正常。
+**退出码 0 = 工具工作正常。** 想看本机能找到哪些 SVD，跑 `python scripts/verify.py doctor`。
+
+真正核验用户代码时需要目标芯片的 SVD（`--chip` 按芯片名找本机 CMSIS-Pack，
+或 `--svd` 直接给文件路径）；没有时可用 `--demo` 走内置演示芯片先看效果。
 
 ## 何时使用
 
@@ -34,15 +47,25 @@ metadata:
 
 ## 命令
 
+**零配置试用（不需要任何 SVD、芯片或代码文件，直接能跑）：**
+
 ```bash
-python scripts/verify.py check main.c --chip STM32G431
-python scripts/verify.py check src/ --svd ./STM32G431xx.svd --checklist
-python scripts/verify.py check --patch changes.diff --chip STM32G431
-python scripts/verify.py check examples/verify_demo.c --demo
-python scripts/verify.py check main.c --chip ESP32-S3 --headers "$IDF_PATH/components/soc/esp32s3/include/soc"
-python scripts/verify.py rules
+python scripts/verify.py demo      # 自检：用内置演示芯片 + 内置样例跑一遍 E01–E13，退出码 0 = 正常
+python scripts/verify.py doctor    # 环境体检：SVD 来源与上手建议
+python scripts/verify.py rules     # 列出核验规则 E01–E13
 ```
 
+**核验真实代码（需要芯片 SVD）：**
+
+```bash
+python scripts/verify.py check main.c --chip STM32G431                       # 按芯片名找本机 CMSIS-Pack
+python scripts/verify.py check src/ --svd ./STM32G431xx.svd --checklist     # 直接指定 SVD 文件
+python scripts/verify.py check --patch changes.diff --chip STM32G431         # 核验补丁新增行
+python scripts/verify.py check main.c --chip ESP32-S3 --headers "$IDF_PATH/components/soc/esp32s3/include/soc"
+python scripts/verify.py check examples/verify_demo.c --demo                # 用内置演示芯片核验样例
+```
+
+- 没有 SVD 时用 `--demo` 走内置演示芯片（合成数据，非真实芯片），或先跑 `doctor` 看本机可用来源。
 - `check` 接受文件、目录（递归扫 `.c/.h/.cpp/.cc/.cxx/.hpp/.hh/.hxx/.ino` 等，上限 200 个）或 `--patch`（unified diff 的新增行）。
 - **补丁模式**：只核验新增行；若磁盘上有完整文件（按当前目录与补丁所在目录查找），文件级检查
   （E06/E07/E11）用整文件做上下文——未改动的时钟使能/置位可见，不会误报；找不到完整文件时给出

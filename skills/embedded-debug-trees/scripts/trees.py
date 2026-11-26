@@ -7,6 +7,10 @@
   python trees.py rootcauses hardfault
   python trees.py list [--format json]
   python trees.py demo
+
+MCU 域 11 棵树覆盖嵌入式软件最高频的故障面
+（跑飞/不通/丢数据/卡死/起不来/CAN/USB/Flash/RTC/LCD/低功耗）；
+FPGA/RTL 排障自 v1.4.0 起独立成库 embedded-fpga-trees，本库不再覆盖。
 """
 
 from __future__ import annotations
@@ -17,7 +21,7 @@ import os
 import re
 import sys
 
-__version__ = "1.3.1"
+__version__ = "1.4.0"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(os.path.dirname(HERE), "assets", "trees.json")
@@ -311,9 +315,6 @@ def cmd_demo(args, out):
         ("Flash 写进去读出来不对", "flash"),
         ("RTC 每次上电时间都重置", "rtc"),
         ("屏幕整块白屏不显示", "display"),
-        ("FPGA 综合后数据全零", "fpga-rtl"),
-        ("跨时钟域 亚稳态", "fpga-rtl"),
-        ("FPGA 资源压不下去", "fpga-rtl"),
     ]
     failed = []
     for query, expect in probes:
@@ -336,7 +337,7 @@ def main(argv=None):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(
-        prog="trees.py", description="嵌入式排障决策树检索器",
+        prog="trees.py", description="嵌入式故障诊断器",
         epilog="""示例:
   python trees.py search "DMA 丢数据"      按症状检索（中英文均可）
   python trees.py search "I2C 卡死" --tree comm   限定树内检索

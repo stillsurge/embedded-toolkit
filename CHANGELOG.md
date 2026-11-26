@@ -32,16 +32,50 @@
 
 ### 已知待办
 
-本轮**不发版**——按新流程，平台未对齐的技能不允许发出去。`check_release.py` 现存 10 项：
+平台未对齐的 10 项里，6 个 `behind` 已在本轮回灌（见下节），剩 4 项：
 
-- `behind` 6 个：debug-trees（仓库 1.3.1 / 平台 1.4.0，FPGA 拆分未回灌）、driver-templates、
-  peripheral-pitfalls、register-lookup、register-verify、timing-calc。
 - `ahead` 3 个：code-generator 1.1.1、code-reviewer 1.1.2、motor-pid-tuner 1.1.1，改动已进
-  仓库但尚未提交平台。
+  仓库但尚未提交平台。上平台后把 `platform` 版本与 `state` 一起改。
 - `unverified` 1 个：component-pitfalls，台账记 `not_published` 但批次包存在，需后台核实。
+
+### 回灌：6 个技能与平台版本对齐
+
+仓库此前比平台旧，用户从 GitHub 下到的是旧版本。按平台已发布内容同步：
+
+| 技能 | 仓库旧版 | 对齐后 | 实质变化 |
+|---|---|---|---|
+| `embedded-debug-trees` | 1.3.1 | **1.4.0** | FPGA/RTL 拆出独立技能，12 棵树 77 节点 → 11 棵 69 节点 |
+| `embedded-register-verify` | 1.16.2 | **1.17.0** | 新增 `demo` / `doctor` 子命令；README 与 SKILL 补「先跑 demo」上手动线 |
+| `embedded-register-lookup` | 1.11.1 | **1.11.3** | 帮助文本统一品牌名 |
+| `embedded-timing-calc` | 1.1.1 | **1.1.2** | 版本号 |
+| `embedded-peripheral-pitfalls` | 1.2.1 | **1.2.2** | 版本号、帮助文本统一品牌名 |
+| `embedded-driver-templates` | 1.0.0 | **1.0.1** | 驱动文件由 `assets/drivers/<名>/` 压平为 `assets/<名>__<文件>`（平台 Skill 包只支持两级目录），引擎按前缀聚合 |
+
+随之处理的三处连带问题：
+
+- `assets/drivers/` 是压平前的重复副本（45 个文件，与顶层 `__` 平铺文件逐字节相同），已删除，
+  打包体积少 45 个文件。
+- `tools/knowledge_bench.py` 里 8 条指向 `fpga-rtl` 的评测用例随树一起移除，用例总数 241 → 233，
+  仍远高于 100 条门槛。
+- `examples/demo_cases.txt` 还留着「症状 12（fpga-rtl）」与 `show ...|fpga-rtl` 的示例，同步清掉。
+
+### README 重构
+
+按读者视角重排：开头给一个真实命令输出，讲清解决什么问题；技能清单 → 安装 → 五分钟上手 →
+典型场景 → 查写验闭环 → 适用范围与不覆盖 → 配置 → 设计原则 → 参与开发。
+
+删掉的是仓库治理语言——"本仓库是发布渠道"、"全部自研、均已上线"、"收录边界"、路线图，
+以及一段没有读者关心的触发率长文（压成一句并指向 `benchmarks/`）。`CONTRIBUTING.md` 新增
+「README 写什么、不写什么」一节，把这条界线写成规则，避免以后又塞回去。
+
+开头示例输出是用 `--demo` 实跑后粘的，不是手写。
 
 ### 修复
 
+- `shared/etk_core/cache.py` 的 `cache_dir()` 补兜底：home 展开失败时（Windows 上
+  `USERPROFILE` 与 `HOMEDRIVE/HOMEPATH` 都缺失）`expanduser("~")` 会返回字面量 `~`，
+  原实现会在用户当前工作目录里造一个 `~/.cache/etk` 目录，污染项目目录。改为退回系统临时目录。
+  此修复由 `sync_core.py` 同步到 lookup / verify 的技能副本。
 - `.claude-plugin/plugin.json` 与 `marketplace.json` 的「审查 28 条」改为 27 条（四处口径
   此前修过，这两个 JSON 漏了）。
 - `references/misra-mapping.md` 缺规则 27（数组形参上 `sizeof`）一行，表格只到 26 条。
