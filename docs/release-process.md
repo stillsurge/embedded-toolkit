@@ -161,3 +161,52 @@ git push origin v1.5.0
 2. 下载整包解压，随机挑一个技能跑 `--help` 与一条真实命令。
 3. 把发布结果写回平台台账（版本、时间、附件名）。
 4. 记一笔到项目记忆：版本、变更要点、遗留项。
+5. 如果这次动了技能数量或定位文案，重跑 `tools/make_social_preview.py` 并重新上传社交预览图（见 9.3）。
+
+## 9. GitHub 页面上的东西，哪些能自动化
+
+仓库里改完不等于 GitHub 上就对了。页面上的元数据是另一套，且自动化程度不一样：
+
+| 项 | 怎么做 | 能否自动 |
+|---|---|---|
+| About 描述 | `PATCH /repos/{owner}/{repo}`，字段 `description` | 可（REST） |
+| Topics | `PUT /repos/{owner}/{repo}/topics` | 可（REST） |
+| Release 说明 | `PATCH /repos/{owner}/{repo}/releases/{id}`，字段 `body` | 可（REST） |
+| 社交预览图 | Settings → Social preview → Edit → Upload | **不可，只能网页手动** |
+
+### 9.1 About 描述与 topics
+
+这两项在仓库首页最显眼，也最容易和工作树脱节。改完 `README` 里的技能数量，记得同步改：
+描述里写死的「15 个技能」不会自己变。查当前值：
+
+```bash
+curl -s https://api.github.com/repos/stillsurge/embedded-toolkit | grep -E '"description"|"topics"'
+```
+
+### 9.2 Release 说明
+
+`--generate-notes` 生成的是提交标题列表，可用性取决于提交信息质量。版本跨度大时，
+按 `CHANGELOG.md` 的对应段落重写一遍，写清楚「装到的是什么」和「修了什么」。
+只有一行 `Full Changelog` 等于没写——下载页的人看不出这版和上版差在哪。
+
+### 9.3 社交预览图
+
+GitHub 至今没有提供设置 social preview 的 API（截至 2026-11，REST 与 GraphQL 都没有，
+社区从 2022 年提到现在仍未支持）。这一步只能在
+`https://github.com/{owner}/{repo}/settings` 页面手动上传。
+
+图由 `tools/make_social_preview.py` 生成，输出 1280×640 PNG。改完重跑即可：
+
+```bash
+python tools/make_social_preview.py    # 需要 Pillow，仅构建期使用
+```
+
+图上的约束，改脚本时别破坏：
+
+- **尺寸 1280×640**（2:1）。列表页缩略显示约 400px 宽，所以主标题不小于 72px，
+  正文不小于 18px，再小的信息等于没有。
+- **命令输出必须是实跑结果**，不能手写示意。图里那行 `lookup.py lookup USART1.CR1 --demo`
+  的输出是从真实执行结果里抄的——这套工具的核心卖点是「每条结论带出处」，图上写假的就自相矛盾。
+- **两类字体坑**：Consolas 没有汉字，中文行会渲染成方块；微软雅黑不含 `U+2713`，
+  对勾也得用 `draw.line` 手绘。
+
