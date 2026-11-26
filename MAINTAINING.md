@@ -291,6 +291,9 @@ CI 矩阵：`ubuntu-latest` / `windows-latest` / `macos-latest` × Python 3.10 /
 
 - [ ] Release 附件数 = 技能数 + 1（整包）
 - [ ] 下载整包解压，随便挑一个技能跑 `--help` 和一条真实命令
+- [ ] **补写 Release 说明**。workflow 用 `--generate-notes` 生成的是提交标题列表，
+      一屏字读不出这版改了什么。按 `CHANGELOG.md` 对应段落重写成「装到的是什么 + 修了什么」，
+      用 `PATCH /repos/{owner}/{repo}/releases/{id}` 更新 `body`
 - [ ] 动了技能数量或定位文案的话，重跑 `tools/make_social_preview.py` 并重新上传社交预览图
 - [ ] 记一笔到项目记忆：版本、要点、遗留项
 
