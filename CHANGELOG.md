@@ -8,6 +8,16 @@
 
 ## [Unreleased]
 
+### 新增
+
+- **仓库社交预览图**：`tools/make_social_preview.py` 生成 1280×640 的 `.github/social-preview.png`，
+  技能数量或定位文案变了重跑即可。图上的命令输出取自 `lookup.py lookup USART1.CR1 --demo` 的
+  真实输出，不是手写的示意。
+  脚本依赖 Pillow，属构建辅助，不参与运行时，也不在质量门的模块白名单扫描范围内（只扫
+  `shared/` 与 `skills/`）。
+
+### 修复
+
 1.5.0 发布后发现的三处 GitHub 侧问题，都属于"页面上的话与实际不符"，不影响包内容。
 
 ### 修复
