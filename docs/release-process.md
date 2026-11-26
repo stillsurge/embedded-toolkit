@@ -113,9 +113,9 @@ git push origin v1.5.0
 
 ## 5. 只改治理文件时
 
-`docs/`、`README.md`、`CHANGELOG.md`、`.github/`、`tools/`、`release/` 这类改动不改变
-用户拿到的技能内容，可以直接推 `main`，不必打 tag。但如果动了 `skills/` 下任何一个字节，
-就必须按第 4 节走完整流程。
+`docs/`、`README.md`、`CHANGELOG.md`、`.github/`、`tools/`、`release/`、
+`requirements-dev.txt` 这类改动不改变用户拿到的技能内容，可以直接推 `main`，不必打 tag。
+但如果动了 `skills/` 下任何一个字节，就必须按第 4 节走完整流程。
 
 ## 6. 门禁矩阵
 
