@@ -1,2 +1,6 @@
 # 仅开发和测试使用。运行时（shared/etk_core 与各技能脚本）只依赖 Python 标准库。
 pytest>=7.0
+
+# 生成 GitHub 社交预览图（tools/make_social_preview.py）需要，仅构建期使用。
+# 不跑这个脚本就不必装；技能本身不依赖 Pillow。
+Pillow>=10.0

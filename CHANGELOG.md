@@ -17,6 +17,9 @@
   `shared/` 与 `skills/`）。
   已在 GitHub Settings 上传生效（2026-11-26），仓库 `og:image` 由默认自动生成图切到
   `repository-images.githubusercontent.com`。这一步没有 API，只能页面手动。
+- `requirements-dev.txt` 补上 Pillow：重跑预览图脚本的前提，注明仅构建期使用、
+  技能本身不依赖它。此前只在脚本 docstring 里写了「需要 Pillow」，照 README
+  装 dev 依赖的人跑不起来。
 
 ### 修复
 
