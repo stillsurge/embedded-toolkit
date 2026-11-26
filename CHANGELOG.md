@@ -6,7 +6,7 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
-## [Unreleased]
+## [1.5.0] - 2026-11-26
 
 把「什么算发布、什么时候能推上来」从口头约定变成可执行的门禁。此前的状态是：仓库里既有
 未上平台的改动（`ahead`），也有落后平台的旧版本（`behind`），但没有任何机制能发现。
@@ -32,11 +32,14 @@
 
 ### 已知待办
 
-平台未对齐的 10 项里，6 个 `behind` 已在本轮回灌（见下节），剩 4 项：
+平台状态已按 2026-11-26 实测重写（ClawHub `api/v1/skills/<slug>` 逐条查），发现三件事：
 
-- `ahead` 3 个：code-generator 1.1.1、code-reviewer 1.1.2、motor-pid-tuner 1.1.1，改动已进
-  仓库但尚未提交平台。上平台后把 `platform` 版本与 `state` 一起改。
-- `unverified` 1 个：component-pitfalls，台账记 `not_published` 但批次包存在，需后台核实。
+- `component-pitfalls` **确实已上线**（ClawHub 1.0.0，166 次下载），此前台账记 `not_published` 是错的，已改 `synced`。
+- `embedded-fpga-sim`、`embedded-production-test`、`hw-pcb-review` 在 ClawHub 上**不存在**，发布渠道是
+  WorkBuddy 市场（依据仍只有台账的人工确认记录），白名单里标 `workbuddy` 并写明依据。
+- 剩 3 个 `ahead`：`embedded-code-generator` 1.1.1、`embedded-code-reviewer` 1.1.2、
+  `motor-pid-tuner` 1.1.1。仓库版本比 ClawHub 高，改动都是真修复（`--html` 崩溃、报告页脚版本号、
+  映射表补全），回退等于把 bug 放回去。带 `plan` 放行，但下一批发布窗口必须推上平台。
 
 ### 回灌：6 个技能与平台版本对齐
 
