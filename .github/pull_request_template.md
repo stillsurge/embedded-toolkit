@@ -21,7 +21,7 @@
 
 ## 发布合规（改了技能内容才需要填）
 
-- [ ] 该技能已在平台上线，`release/published.json` 已登记且 `state` 正确
+- [ ] 该技能已发布过，`release/published.json` 已登记且 `version` 与 `SKILL.md` 一致
 - [ ] 版本号已递增（`SKILL.md` 的 `metadata.version` 与脚本 `__version__` 一起改）
 - [ ] `docs/skills/<技能名>.md` 已同步；行为变化时 `README.md` 技能表也更新
 - [ ] `CHANGELOG.md` 已记录
@@ -29,4 +29,4 @@
 
 ## 备注
 
-<!-- 已知限制、未覆盖场景、后续计划。若本次带 ahead/behind 状态入库，请写清何时上平台 -->
+<!-- 已知限制、未覆盖场景、后续计划。若本次对外的分发渠道还没跟上，写清什么时候补 -->

@@ -41,11 +41,11 @@ jobs:
             exit 1
           fi
 
-      - name: 发布前体检（质量门 + 测试 + 平台对齐 + 版本递增 + 隐私 + 打包预演）
+      - name: 发布前体检（质量门 + 测试 + 版本递增 + 隐私 + 打包预演）
         run: |
           PREV=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           echo "上一个 tag：${PREV:-（无）}"
-          python tools/check_release.py --since "${PREV}" --ack-pending
+          python tools/check_release.py --since "${PREV}"
 
       - name: 打包技能
         run: |

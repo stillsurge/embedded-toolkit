@@ -251,8 +251,6 @@ def _declared_deps(skill_dir):
 
 
 RELEASE_MANIFEST = os.path.join(ROOT, "release", "published.json")
-MANIFEST_STATES = {"synced", "ahead", "behind", "unverified"}
-PLATFORM_KEYS = {"skillhub", "clawhub", "workbuddy"}
 
 
 def load_manifest():
@@ -300,11 +298,6 @@ def check_published():
 
     for name in sorted(set(on_disk) & set(entries)):
         item = entries[name]
-        state = item.get("state", "")
-        if state not in MANIFEST_STATES:
-            issues.append("%s：state=%r 非法，只能是 %s" % (name, state, "/".join(sorted(MANIFEST_STATES))))
-        if state != "synced" and not str(item.get("plan", "")).strip():
-            issues.append("%s：state=%s 必须在 plan 里写清待办（要做什么、卡在哪），否则等于把半成品混进发布仓库" % (name, state))
 
         md = os.path.join(base, name, "SKILL.md")
         if not os.path.isfile(md):
@@ -318,26 +311,7 @@ def check_published():
         if skill_version != item.get("version"):
             issues.append("%s：release/published.json 记的版本 %r 与 SKILL.md 的 %r 不一致"
                           % (name, item.get("version"), skill_version))
-
-        platform = item.get("platform") or {}
-        unknown = set(platform) - PLATFORM_KEYS
-        if unknown:
-            issues.append("%s：platform 出现未知平台 %s" % (name, sorted(unknown)))
-        if state == "synced":
-            if not platform:
-                issues.append("%s：state=synced 但没有平台发布记录，无法证明上过线" % name)
-            for key, ver in platform.items():
-                if ver != item.get("version"):
-                    issues.append("%s：state=synced 但 %s 版本 %s 与仓库版本 %s 不符"
-                                  % (name, key, ver, item.get("version")))
     return issues
-
-
-def pending_sync():
-    """返回尚未与平台对齐的技能清单，供发布前检查与提示使用。"""
-    entries, _ = load_manifest()
-    return [(n, e.get("state", ""), str(e.get("plan", "")).strip())
-            for n, e in sorted(entries.items()) if e.get("state") != "synced"]
 
 
 def check_demo_assets():
@@ -412,11 +386,6 @@ def main():
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     for item in check_warnings():
         print("警告：" + item)
-    pending = pending_sync()
-    if pending:
-        print("提示：%d 个技能尚未与平台版本对齐（详见 release/published.json 的 plan 字段）：" % len(pending))
-        for name, state, plan in pending:
-            print("  - %s [%s] %s" % (name, state, plan))
     issues = run_all()
     if issues:
         for item in issues:

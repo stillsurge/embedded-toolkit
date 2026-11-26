@@ -1,14 +1,11 @@
 {
-  "schemaVersion": 1,
-  "updatedAt": "2026-11-25",
+  "schemaVersion": 2,
+  "updatedAt": "2026-11-26",
   "_说明": [
-    "本文件是「哪些技能可以出现在这个公开仓库」的唯一白名单。GitHub 是发布渠道，不是开发仓库：",
-    "只有已经在平台（WorkBuddy / SkillHub / ClawHub）上线、且版本可追溯的技能才允许入库。",
-    "新增技能 = 先上平台，再在此登记，最后才 commit 进 skills/。顺序反了 check_repo.py 会直接失败。",
-    "state 语义：synced=仓库版本与平台已发布版本一致；ahead=仓库比平台新（改动还没上平台）；",
-    "behind=仓库比平台旧（用户从 GitHub 下到的是旧版本）；unverified=平台发布状态尚未核实。",
-    "非 synced 的条目必须写 plan（要做什么、卡在哪），否则质量门失败；发版时还要 --ack-pending 显式确认。",
-    "platform 里的版本必须是实测值（ClawHub 用 api/v1/skills/<slug> 查，WorkBuddy 用后台记录），不能照抄台账——台账只记提交与人工确认，不保证线上版本。evidence 字段写明每条的依据。"
+    "本文件是「哪些技能可以出现在这个公开仓库」的唯一白名单。它不是版本台账，也不是发布状态表。",
+    "只记两件事：这个技能发布过（releasedAt）、仓库里现在是哪一版（version）。",
+    "不记录任何外部平台的版本号。仓库里 SKILL.md 的 metadata.version 就是唯一权威，与这里必须一致。",
+    "新增技能：先发布，再在此登记，最后 commit 进 skills/。顺序反了 check_repo.py 会直接失败。"
   ],
   "policy": {
     "rule": "不到发布程度的内容不进 GitHub，包括分支与 PR。技能内容在本地开发副本里迭代，达标后才同步到本仓库并打 tag。",
@@ -20,191 +17,81 @@
       ".github/workflows/release.yml（tag 与版本号、CHANGELOG 一致性）"
     ]
   },
-  "platforms": {
-    "skillhub": "https://skillhub.cn",
-    "clawhub": "https://clawhub.ai",
-    "workbuddy": "本地 WorkBuddy 技能目录"
-  },
   "skills": [
+    {
+      "name": "component-pitfalls",
+      "version": "1.0.0",
+      "releasedAt": "2026-11-13"
+    },
     {
       "name": "embedded-code-generator",
       "version": "1.1.1",
-      "platform": {
-        "clawhub": "1.1.0"
-      },
-      "state": "ahead",
-      "plan": "1.1.1 尚未提交平台（台账 status=1.1.1-awaiting-upload）。上线后把 platform 版本改为 1.1.1，state 改 synced。",
-      "releasedAt": "2026-11-13",
-      "verifiedAt": "2026-11-26",
-      "evidence": "clawhub.ai/api/v1/skills/embedded-code-generator 实测（2026-11-26）"
+      "releasedAt": "2026-11-13"
     },
     {
       "name": "embedded-code-reviewer",
       "version": "1.1.2",
-      "platform": {
-        "clawhub": "1.1.0"
-      },
-      "state": "ahead",
-      "plan": "1.1.2 修了 --html 崩溃并补齐 MISRA 映射表的规则27，尚未提交平台（台账 1.1.1-awaiting-upload）。上线后把 platform 版本与 state 一起改。",
-      "releasedAt": "2026-11-13",
-      "verifiedAt": "2026-11-26",
-      "evidence": "clawhub.ai/api/v1/skills/embedded-code-reviewer 实测（2026-11-26）"
+      "releasedAt": "2026-11-13"
     },
     {
       "name": "embedded-debug-trees",
       "version": "1.4.0",
-      "platform": {
-        "clawhub": "1.4.0"
-      },
-      "state": "synced",
-      "plan": "",
-      "releasedAt": "2026-11-13",
-      "verifiedAt": "2026-11-26",
-      "evidence": "clawhub.ai/api/v1/skills/embedded-debug-trees 实测（2026-11-26）"
+      "releasedAt": "2026-11-13"
     },
     {
       "name": "embedded-driver-templates",
       "version": "1.0.1",
-      "platform": {
-        "clawhub": "1.0.1"
-      },
-      "state": "synced",
-      "plan": "",
-      "releasedAt": "2026-11-13",
-      "verifiedAt": "2026-11-26",
-      "evidence": "clawhub.ai/api/v1/skills/embedded-driver-templates 实测（2026-11-26）"
+      "releasedAt": "2026-11-13"
     },
     {
       "name": "embedded-fpga-sim",
       "version": "1.0.0",
-      "platform": {
-        "workbuddy": "1.0.0"
-      },
-      "state": "synced",
-      "plan": "",
-      "releasedAt": "2026-11-06",
-      "verifiedAt": "2026-11-26",
-      "evidence": "ClawHub 无此技能；发布渠道为 WorkBuddy 市场，依据发布台账 2026-11-06 人工确认记录"
+      "releasedAt": "2026-11-06"
     },
     {
       "name": "embedded-ota-toolkit",
       "version": "1.2.0",
-      "platform": {
-        "clawhub": "1.2.0"
-      },
-      "state": "synced",
-      "plan": "",
-      "releasedAt": "2026-11-13",
-      "verifiedAt": "2026-11-26",
-      "evidence": "clawhub.ai/api/v1/skills/embedded-ota-toolkit 实测（2026-11-26）"
+      "releasedAt": "2026-11-13"
     },
     {
       "name": "embedded-peripheral-pitfalls",
       "version": "1.2.2",
-      "platform": {
-        "clawhub": "1.2.2"
-      },
-      "state": "synced",
-      "plan": "",
-      "releasedAt": "2026-11-13",
-      "verifiedAt": "2026-11-26",
-      "evidence": "clawhub.ai/api/v1/skills/embedded-peripheral-pitfalls 实测（2026-11-26）"
+      "releasedAt": "2026-11-13"
     },
     {
       "name": "embedded-production-test",
       "version": "1.0.0",
-      "platform": {
-        "workbuddy": "1.0.0"
-      },
-      "state": "synced",
-      "plan": "",
-      "releasedAt": "2026-11-06",
-      "verifiedAt": "2026-11-26",
-      "evidence": "ClawHub 无此技能；发布渠道为 WorkBuddy 市场，依据发布台账 2026-11-06 人工确认记录"
+      "releasedAt": "2026-11-06"
     },
     {
       "name": "embedded-register-lookup",
       "version": "1.11.3",
-      "platform": {
-        "clawhub": "1.11.3"
-      },
-      "state": "synced",
-      "plan": "",
-      "releasedAt": "2026-11-13",
-      "verifiedAt": "2026-11-26",
-      "evidence": "clawhub.ai/api/v1/skills/embedded-register-lookup 实测（2026-11-26）"
+      "releasedAt": "2026-11-13"
     },
     {
       "name": "embedded-register-verify",
       "version": "1.17.0",
-      "platform": {
-        "clawhub": "1.17.0"
-      },
-      "state": "synced",
-      "plan": "",
-      "releasedAt": "2026-11-13",
-      "verifiedAt": "2026-11-26",
-      "evidence": "clawhub.ai/api/v1/skills/embedded-register-verify 实测（2026-11-26）"
+      "releasedAt": "2026-11-13"
     },
     {
       "name": "embedded-timing-calc",
       "version": "1.1.2",
-      "platform": {
-        "clawhub": "1.1.2"
-      },
-      "state": "synced",
-      "plan": "",
-      "releasedAt": "2026-11-13",
-      "verifiedAt": "2026-11-26",
-      "evidence": "clawhub.ai/api/v1/skills/embedded-timing-calc 实测（2026-11-26）"
-    },
-    {
-      "name": "component-pitfalls",
-      "version": "1.0.0",
-      "platform": {
-        "clawhub": "1.0.0"
-      },
-      "state": "synced",
-      "plan": "",
-      "releasedAt": "2026-11-13",
-      "verifiedAt": "2026-11-26",
-      "evidence": "clawhub.ai/api/v1/skills/component-pitfalls 实测（2026-11-26）"
+      "releasedAt": "2026-11-13"
     },
     {
       "name": "hw-pcb-review",
       "version": "1.0.0",
-      "platform": {
-        "workbuddy": "1.0.0"
-      },
-      "state": "synced",
-      "plan": "",
-      "releasedAt": "2026-11-06",
-      "verifiedAt": "2026-11-26",
-      "evidence": "ClawHub 无此技能；发布渠道为 WorkBuddy 市场，依据发布台账 2026-11-06 人工确认记录"
+      "releasedAt": "2026-11-06"
     },
     {
       "name": "motor-pid-tuner",
       "version": "1.1.1",
-      "platform": {
-        "clawhub": "1.1.0"
-      },
-      "state": "ahead",
-      "plan": "1.1.1 修了报告页脚版本号，尚未提交平台（台账 status=1.1.1-awaiting-upload）。上线后改 synced。",
-      "releasedAt": "2026-11-13",
-      "verifiedAt": "2026-11-26",
-      "evidence": "clawhub.ai/api/v1/skills/motor-pid-tuner 实测（2026-11-26）"
+      "releasedAt": "2026-11-13"
     },
     {
       "name": "schematic-reader",
       "version": "1.0.3",
-      "platform": {
-        "clawhub": "1.0.3"
-      },
-      "state": "synced",
-      "plan": "",
-      "releasedAt": "2026-11-13",
-      "verifiedAt": "2026-11-26",
-      "evidence": "clawhub.ai/api/v1/skills/schematic-reader 实测（2026-11-26）"
+      "releasedAt": "2026-11-13"
     }
   ]
 }

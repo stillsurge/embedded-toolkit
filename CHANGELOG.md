@@ -8,6 +8,18 @@
 
 ## [Unreleased]
 
+### 移除
+
+- **发布门禁不再比对任何外部平台的版本**。此前 `release/published.json` 记着每个技能在各
+  渠道的已发布版本与 `state`（synced / ahead / behind / unverified），`check_release.py`
+  据此判定能否发版。问题是：本仓库的源码状态本身就是唯一判定依据，拿外部记录去卡自己的
+  发版没有道理，还会让 GitHub 被别处的进度绑住。全部删掉：
+  - `published.json` 精简为「这个技能发布过 + 仓库里是哪一版」（schemaVersion 2）
+  - `check_repo.py` 去掉 state / plan / platform 校验与 `pending_sync()`
+  - `check_release.py` 去掉平台对齐检查与 `--ack-pending` 参数，CI 同步去掉该参数
+  - 文档同步改写：R3 只在仓库内部三处比对；新增「往外分发时从仓库打包」，用
+    `git archive` 而不是从开发区打包，从源头消除两份代码分叉
+
 ### 新增
 
 - **仓库社交预览图**：`tools/make_social_preview.py` 生成 1280×640 的 `.github/social-preview.png`，

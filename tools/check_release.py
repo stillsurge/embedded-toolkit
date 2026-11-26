@@ -3,18 +3,16 @@
 
 质量门（check_repo）管的是「内容对不对」，本脚本管的是「现在该不该发版」：
 1. 质量门 + 单元测试全绿
-2. 发布白名单里没有未对齐平台的技能（有就必须 --ack-pending 显式确认）
-3. 相对上一个 tag，技能内容变了就必须升版本号（改了内容不改版本，用户拿到的
+2. 相对上一个 tag，技能内容变了就必须升版本号（改了内容不改版本，用户拿到的
    zip 名和版本号会对不上，回滚也没法定位）
-4. 索引与工作树干净：没有 __pycache__、.pytest_cache、*.pyc 被提交
-5. 无本机绝对路径 / 用户名 / 令牌泄露（公开仓库，泄露一次就是永久）
-6. 打包预演：报告文件数与体积，确认没有把测试夹具或评测转录打进去
-7. 文档同步：每个技能在 docs/skills/ 有一页
+3. 索引与工作树干净：没有 __pycache__、.pytest_cache、*.pyc 被提交
+4. 无本机绝对路径 / 用户名 / 令牌泄露（公开仓库，泄露一次就是永久）
+5. 打包预演：报告文件数与体积，确认没有把测试夹具或评测转录打进去
+6. 文档同步：每个技能在 docs/skills/ 有一页
 
 用法：
     python tools/check_release.py                 # 完整体检
     python tools/check_release.py --since v1.4.1   # 指定比对基线
-    python tools/check_release.py --ack-pending    # 明知还有待对齐项，仍要发版
     python tools/check_release.py --skip-tests     # 只查结构（本地快速迭代用）
 """
 
@@ -111,15 +109,6 @@ def check_tests():
     if out.returncode != 0:
         detail = tail[-3:] if tail else [""]
         issues.append("pytest 未通过：%s" % " | ".join(detail))
-    return issues
-
-
-def check_pending(ack):
-    issues = []
-    pending = check_repo.pending_sync()
-    if pending and not ack:
-        issues.append("还有 %d 个技能未与平台对齐，确认要发版请加 --ack-pending：%s"
-                      % (len(pending), ", ".join(n for n, _, _ in pending)))
     return issues
 
 
@@ -260,7 +249,6 @@ def check_metadata():
 def main():
     parser = argparse.ArgumentParser(description="发布前体检")
     parser.add_argument("--since", default="", help="比对基线的 tag，默认取最近一个 tag")
-    parser.add_argument("--ack-pending", action="store_true", help="确认仍有未对齐平台的技能")
     parser.add_argument("--skip-tests", action="store_true", help="跳过 pytest")
     args = parser.parse_args()
 
@@ -273,7 +261,6 @@ def main():
     issues += check_repo.run_all()
     if not args.skip_tests:
         issues += check_tests()
-    issues += check_pending(args.ack_pending)
     issues += check_version_bump(since)
     issues += check_index_hygiene()
     issues += check_leaks()
@@ -286,12 +273,6 @@ def main():
     print("skills/ 共 %d 个文件，%.2f MB" % (count, mb))
     for sz, rel in biggest:
         print("  %6.1f KB  %s" % (sz / 1024, rel))
-
-    pending = check_repo.pending_sync()
-    if pending:
-        print("\n== 待对齐平台的技能（%d） ==" % len(pending))
-        for name, state, plan in pending:
-            print("  %-30s [%s] %s" % (name, state, plan))
 
     if mb > MAX_BUNDLE_MB:
         issues.append("skills/ 体积 %.2f MB 超过 %.1f MB，检查是否混入大文件" % (mb, MAX_BUNDLE_MB))

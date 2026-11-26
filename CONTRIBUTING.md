@@ -30,22 +30,15 @@ CI 在 ubuntu / windows / macOS × Python 3.10 / 3.12 / 3.13 上跑前三条，�
 本仓库是**公开发布渠道**，不是开发仓库。技能内容在本地开发副本里迭代，达到发布标准才进这里；
 推送即对外发布，包括分支和 PR。入库前该技能必须满足：
 
-1. **已在平台上线**（WorkBuddy / SkillHub / ClawHub 任一），状态为已发布或 live，并在
-   `release/published.json` 登记。本地做完但没上过平台的，先别进这里——用户 clone 下来会拿到
-   平台查不到的版本，出问题无法回溯。
+1. **已经发布过**，并在 `release/published.json` 登记。本地做完、跑得很顺但没实际发过的，
+   先别进这里——用户 clone 下来拿到的是没人验证过的半成品，出问题无法回溯。
 2. **自研或授权明确**。第三方项目不收；确需收录的必须保留原 LICENSE 与原作者署名。
 3. **只收嵌入式相关**。通用工具、教学/毕设类技能不属于本仓库范围。
 4. **版本可追溯**：`SKILL.md` 的 `metadata.version` = 脚本 `__version__` =
-   `release/published.json` 的 `version` = 平台版本。
+   `release/published.json` 的 `version`。三处只在本仓库内部比对，不看外部任何地方。
 
-`release/published.json` 是白名单，也是唯一的判定依据。`state` 只有四种：
-
-| state | 含义 | 能不能发版 |
-|---|---|---|
-| `synced` | 仓库与平台版本一致 | 可以 |
-| `ahead` | 仓库比平台新，改动还没上平台 | 要写 `plan` 并 `--ack-pending` |
-| `behind` | 仓库比平台旧，用户下到的是旧版本 | 发版前必须清零 |
-| `unverified` | 平台状态待核实 | 要写 `plan`，发版前应查清 |
+`release/published.json` 是白名单，只记两件事：这个技能发布过（`releasedAt`）、仓库里现在是
+哪一版（`version`）。它不记录任何外部渠道的版本号——本仓库是唯一真源，版本以 `SKILL.md` 为准。
 
 新增技能时漏登记，`check_repo.py` 会直接报「未登记」并失败。完整流程、版本号规则与发版命令见
 [docs/release-process.md](docs/release-process.md)。
@@ -56,7 +49,7 @@ CI 在 ubuntu / windows / macOS × Python 3.10 / 3.12 / 3.13 上跑前三条，�
 
 | 检查项 | 判定 |
 |---|---|
-| 发布白名单 | `skills/` 下每个目录都在 `release/published.json` 登记，反向也一致；非 `synced` 必须写 `plan`；`synced` 的平台版本必须等于仓库版本 |
+| 发布白名单 | `skills/` 下每个目录都在 `release/published.json` 登记，反向也一致；登记的 `version` 必须等于 `SKILL.md` 的 `metadata.version` |
 | 核心库同步 | 带 `scripts/etk_core/` 的技能，副本与 `shared/etk_core/` 逐文件一致 |
 | SKILL.md 存在 | `skills/<技能名>/SKILL.md` 必须存在 |
 | frontmatter | 可解析；`name` 匹配 `^[a-z0-9]+(-[a-z0-9]+)*$`、≤64、等于目录名；`description` 非空且 ≤1024；`compatibility` ≤500；正文 ≤500 行 |
@@ -75,7 +68,7 @@ CI 在 ubuntu / windows / macOS × Python 3.10 / 3.12 / 3.13 上跑前三条，�
 
 前提：**先在平台发布成功**。没上线的技能不进这个仓库，这是第一道门。
 
-1. 在 `release/published.json` 加一条，`state: "synced"`，`platform` 写各平台实际版本。
+1. 在 `release/published.json` 加一条，`version` 与 `SKILL.md` 一致，`releasedAt` 写首次发布日期。
    漏了这步质量门会报「未登记」。
 2. 建 `skills/<技能名>/`，目录名必须匹配 `^[a-z0-9]+(-[a-z0-9]+)*$`，且与 `name` 完全一致。
 3. `SKILL.md` 的 frontmatter 包含 `name`、`description`、`license`、`compatibility`、
