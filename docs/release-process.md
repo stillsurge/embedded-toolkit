@@ -195,6 +195,9 @@ GitHub 至今没有提供设置 social preview 的 API（截至 2026-11，REST �
 社区从 2022 年提到现在仍未支持）。这一步只能在
 `https://github.com/{owner}/{repo}/settings` 页面手动上传。
 
+当前已设置（2026-11-26），`og:image` 指向 `repository-images.githubusercontent.com`。
+换图时重复下面三步：改脚本 → 重跑 → 页面重新上传。
+
 图由 `tools/make_social_preview.py` 生成，输出 1280×640 PNG。改完重跑即可：
 
 ```bash

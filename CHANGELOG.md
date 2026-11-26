@@ -15,6 +15,8 @@
   真实输出，不是手写的示意。
   脚本依赖 Pillow，属构建辅助，不参与运行时，也不在质量门的模块白名单扫描范围内（只扫
   `shared/` 与 `skills/`）。
+  已在 GitHub Settings 上传生效（2026-11-26），仓库 `og:image` 由默认自动生成图切到
+  `repository-images.githubusercontent.com`。这一步没有 API，只能页面手动。
 
 ### 修复
 
